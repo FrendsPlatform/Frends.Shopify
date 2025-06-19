@@ -3,18 +3,31 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Frends.Shopify.CreateProduct.Definitions;
 
-// TODO: Remove this class if the task does not make connections
-
 /// <summary>
-/// Connection parameters.
+/// Connection parameters for Shopify CreateProduct task.
 /// </summary>
 public class Connection
 {
     /// <summary>
-    /// Connection string to the target service (e.g., database, API endpoint).
+    /// The Shopify store subdomain.
     /// </summary>
-    /// <example>Host=127.0.0.1;Port=5432</example>
+    /// <example>myshop for myshop.myshopify.com</example>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
-    public string ConnectionString { get; set; }
+    public string ShopName { get; set; }
+
+    /// <summary>
+    /// Shopify Admin API access token (private or custom app token).
+    /// </summary>
+    [DisplayFormat(DataFormatString = "Text")]
+    [DefaultValue("")]
+    public string AccessToken { get; set; }
+
+    /// <summary>
+    /// Shopify Admin API version to use.
+    /// </summary>
+    /// <example>2023-10</example>
+    [DisplayFormat(DataFormatString = "Text")]
+    [DefaultValue("")]
+    public string ApiVersion { get; set; }
 }

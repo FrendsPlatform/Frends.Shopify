@@ -3,7 +3,7 @@
 namespace Frends.Shopify.CreateProduct.Definitions;
 
 /// <summary>
-/// Input parameters for creating a Shopify product.
+/// Input parameters for Shopify CreateProduct task.
 /// </summary>
 public class Input
 {
