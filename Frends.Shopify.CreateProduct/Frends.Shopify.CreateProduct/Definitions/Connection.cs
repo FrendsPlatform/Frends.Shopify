@@ -9,9 +9,9 @@ namespace Frends.Shopify.CreateProduct.Definitions;
 public class Connection
 {
     /// <summary>
-    /// The Shopify store subdomain.
+    /// The Shopify store subdomain (e.g., myshop for myshop.myshopify.com).
     /// </summary>
-    /// <example>myshop for myshop.myshopify.com</example>
+    /// <example>myshop</example>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
     public string ShopName { get; set; }

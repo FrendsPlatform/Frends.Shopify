@@ -12,10 +12,9 @@ public class Result
     public bool Success { get; set; }
 
     /// <summary>
-    /// Input string repeated the specified number of times.
+    /// The created product object returned by Shopify.
     /// </summary>
-    /// <example>foobar,foobar</example>
-    public string Output { get; set; }
+    public object CreatedProduct { get; set; }
 
     /// <summary>
     /// Error that occurred during task execution.
