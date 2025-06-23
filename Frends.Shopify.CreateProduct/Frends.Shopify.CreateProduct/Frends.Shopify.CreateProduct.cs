@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Linq;
+using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using Frends.Shopify.CreateProduct.Definitions;
+using Newtonsoft.Json.Linq;
 
 namespace Frends.Shopify.CreateProduct;
 
@@ -12,16 +14,35 @@ namespace Frends.Shopify.CreateProduct;
 public static class Shopify
 {
     /// <summary>
-    /// Shopifyes the input string the specified number of times.
+    /// Error handling
+    /// </summary>
+    private static class ErrorHandler
+    {
+        internal static Result Handle(Exception ex, bool throwError, string customMessage)
+        {
+            var error = new Error
+            {
+                Message = $"{customMessage} {ex.Message}",
+                AdditionalInfo = ex,
+            };
+
+            if (throwError)
+                throw new Exception(error.Message, ex);
+
+            return new Result(false, null, error);
+        }
+    }
+
+    /// <summary>
+    /// Creates a product in Shopify
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends-Shopify-CreateProduct)
     /// </summary>
-    /// <param name="input">Essential parameters.</param>
+    /// <param name="input">Input parameters.</param>
     /// <param name="connection">Connection parameters.</param>
     /// <param name="options">Additional parameters.</param>
     /// <param name="cancellationToken">A cancellation token provided by Frends Platform.</param>
-    /// <returns>object { bool Success, string Output, object Error { string Message, dynamic AdditionalInfo } }</returns>
-    // TODO: Remove Connection parameter if the task does not make connections
-    public static Result CreateProduct(
+    /// <returns>Object { bool Success, object CreatedProduct, Error Error { string Message, Exception AdditionalInfo } }</returns>
+    public static async Task<Result> CreateProduct(
         [PropertyTab] Input input,
         [PropertyTab] Connection connection,
         [PropertyTab] Options options,
@@ -29,49 +50,53 @@ public static class Shopify
     {
         try
         {
-            // TODO: Do something with connection parameters, e.g., connect to a service.
-            _ = connection.ConnectionString;
+            if (string.IsNullOrWhiteSpace(connection.ShopName))
+                throw new ArgumentException("ShopName is required", nameof(connection.ShopName));
 
-            // Cancellation token should be provided to methods that support it
-            // and checked during long-running operations, e.g., loops
-            cancellationToken.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(connection.AccessToken))
+                throw new ArgumentException("AccessToken is required", nameof(connection.AccessToken));
 
-            var output = string.Join(options.Delimiter, Enumerable.Repeat(input.Content, input.Repeat));
+            if (string.IsNullOrWhiteSpace(connection.ApiVersion))
+                throw new ArgumentException("ApiVersion is required", nameof(connection.ApiVersion));
 
-            return new Result
+            if (input.ProductData == null)
+                throw new ArgumentException("ProductData is required", nameof(input.ProductData));
+
+            var payload = new JObject
             {
-                Success = true,
-                Output = output,
-                Error = null,
+                ["product"] = (JToken)input.ProductData,
             };
-        }
-        catch (Exception e) when (e is not OperationCanceledException)
-        {
-            if (options.ThrowErrorOnFailure)
+
+            using (var client = new HttpClient())
             {
-                if (string.IsNullOrEmpty(options.ErrorMessageOnFailure))
-                    throw new Exception(e.Message, e);
+                client.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue(
+                        "Basic",
+                        Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{connection.AccessToken}:")));
 
-                throw new Exception(options.ErrorMessageOnFailure, e);
-            }
+                var response = await client.PostAsync(
+                    $"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/products.json",
+                    new StringContent(payload.ToString(), System.Text.Encoding.UTF8, "application/json"),
+                    cancellationToken);
 
-            var errorMessage = !string.IsNullOrEmpty(options.ErrorMessageOnFailure)
-                ? $"{options.ErrorMessageOnFailure}: {e.Message}"
-                : e.Message;
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var responseJson = JObject.Parse(responseContent);
 
-            return new Result
-            {
-                Success = false,
-                Output = null,
-                Error = new Error
+                if (!response.IsSuccessStatusCode)
                 {
-                    Message = errorMessage,
-                    AdditionalInfo = new
-                    {
-                        Exception = e,
-                    },
-                },
-            };
+                    var error = responseJson["errors"]?.ToString() ?? "Unknown error";
+                    throw new Exception($"Shopify API error: {response.StatusCode} - {error}");
+                }
+
+                return new Result(true, responseJson["product"] as JObject);
+            }
+        }
+        catch (Exception ex)
+        {
+            return ErrorHandler.Handle(
+                ex,
+                options.ThrowErrorOnFailure,
+                options.ErrorMessageOnFailure);
         }
     }
 }
