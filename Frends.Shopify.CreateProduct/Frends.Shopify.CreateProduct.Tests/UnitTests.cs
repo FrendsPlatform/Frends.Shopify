@@ -1,23 +1,43 @@
-using System.Threading;
 using Frends.Shopify.CreateProduct.Definitions;
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Frends.Shopify.CreateProduct.Tests;
 
-[TestFixture]
+[TestClass]
 public class UnitTests
 {
-    [Test]
-    public void ShouldRepeatContentWithDelimiter()
+    private readonly string _shopName = "testshop";
+    private readonly string _accessToken = "testtoken";
+    private readonly string _apiVersion = "2023-10";
+    private Connection _connection;
+    private Input _input;
+    private Options _options;
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        var input = new Input { Content = "foobar", Repeat = 3 };
+        _connection = new Connection
+        {
+            ShopName = _shopName,
+            AccessToken = _accessToken,
+            ApiVersion = _apiVersion,
+        };
 
-        var connection = new Connection { ConnectionString = "Host=127.0.0.1;Port=12345" };
+        _input = new Input
+        {
+            ProductData = new JObject
+            {
+                ["title"] = "Test Product",
+                ["body_html"] = "<p>Test description</p>",
+                ["vendor"] = "Test Vendor",
+            },
+        };
 
-        var options = new Options { Delimiter = ", ", ThrowErrorOnFailure = true, ErrorMessageOnFailure = null };
-
-        var result = Shopify.CreateProduct(input, connection, options, CancellationToken.None);
-
-        Assert.That(result.Output, Is.EqualTo("foobar, foobar, foobar"));
+        _options = new Options
+        {
+            ThrowErrorOnFailure = false,
+            ErrorMessageOnFailure = "Test error occurred",
+        };
     }
 }
