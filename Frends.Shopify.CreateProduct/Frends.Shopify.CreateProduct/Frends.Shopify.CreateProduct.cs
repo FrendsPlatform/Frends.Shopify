@@ -69,14 +69,16 @@ public static class Shopify
 
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue(
-                        "Basic",
-                        Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{connection.AccessToken}:")));
+                client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", connection.AccessToken);
+
+                var content = new StringContent(
+                    payload.ToString(),
+                    System.Text.Encoding.UTF8,
+                    "application/json");
 
                 var response = await client.PostAsync(
                     $"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/products.json",
-                    new StringContent(payload.ToString(), System.Text.Encoding.UTF8, "application/json"),
+                    content,
                     cancellationToken);
 
                 var responseContent = await response.Content.ReadAsStringAsync();
