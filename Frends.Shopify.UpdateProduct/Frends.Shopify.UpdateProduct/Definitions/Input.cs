@@ -1,25 +1,21 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Frends.Shopify.UpdateProduct.Definitions;
 
 /// <summary>
-/// Essential parameters.
+///  Input parameters for Shopify UpdateProduct task.
 /// </summary>
 public class Input
 {
     /// <summary>
-    /// The input string to be repeated and output.
+    /// The unique identifier of the product to be updated.
     /// </summary>
-    /// <example>foobar</example>
-    [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("Lorem ipsum dolor sit amet.")]
-    public string Content { get; set; }
+    [Display(Name = "Product Id")]
+    public string ProductId { get; set; }
 
     /// <summary>
-    /// Number of times to repeat the input string.
+    /// A JSON object representing the fields to update (e.g., title, body_html, variants, images, etc.).
     /// </summary>
-    /// <example>2</example>
-    [DefaultValue(3)]
-    public int Repeat { get; set; }
+    [Display(Name = "Product Data")]
+    public object ProductData { get; set; }
 }

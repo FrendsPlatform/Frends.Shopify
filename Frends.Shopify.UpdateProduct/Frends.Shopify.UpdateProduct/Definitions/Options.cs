@@ -9,15 +9,7 @@ namespace Frends.Shopify.UpdateProduct.Definitions;
 public class Options
 {
     /// <summary>
-    /// Delimiter to use between the repeated strings.
-    /// </summary>
-    /// <example>,</example>
-    [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue(" ")]
-    public string Delimiter { get; set; }
-
-    /// <summary>
-    /// Whether to throw an error on failure.
+    /// Whether to throw an error on failure. True by default.
     /// </summary>
     /// <example>false</example>
     [DefaultValue(true)]
@@ -26,7 +18,7 @@ public class Options
     /// <summary>
     /// Overrides the error message on failure.
     /// </summary>
-    /// <example>Custom error message</example>
+    /// <example>Failed to update product.</example>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
     public string ErrorMessageOnFailure { get; set; }
