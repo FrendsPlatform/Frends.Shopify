@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Frends.Shopify.CreateProduct.Definitions;
@@ -31,7 +30,7 @@ public class UnitTests
         {
             ProductData = new JObject
             {
-                ["title"] = $"Test Product {Guid.NewGuid()}",
+                ["title"] = $"Test Product",
                 ["body_html"] = "<p>Test description</p>",
                 ["vendor"] = "Test Vendor",
                 ["product_type"] = "Test Type",
