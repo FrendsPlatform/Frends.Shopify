@@ -41,7 +41,7 @@ public static class Shopify
     /// <param name="connection">Connection parameters.</param>
     /// <param name="options">Additional parameters.</param>
     /// <param name="cancellationToken">A cancellation token provided by Frends Platform.</param>
-    /// <returns>Object { bool Success, object UpdatedProduct, Error Error { string Message, Exception AdditionalInfo } }</returns>
+    /// <returns>Object { bool Success, Error Error { string Message, Exception AdditionalInfo } }</returns>
     public static async Task<Result> UpdateProduct(
         [PropertyTab] Input input,
         [PropertyTab] Connection connection,
