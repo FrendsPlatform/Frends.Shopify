@@ -1,23 +1,136 @@
 using System.Threading;
+using System.Threading.Tasks;
 using Frends.Shopify.UpdateProduct.Definitions;
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Frends.Shopify.UpdateProduct.Tests;
 
-[TestFixture]
+[TestClass]
 public class UnitTests
 {
-    [Test]
-    public void ShouldRepeatContentWithDelimiter()
+    private readonly string _shopName = "testName";
+    private readonly string _accessToken = "testToken";
+    private readonly string _apiVersion = "2024-04";
+    private readonly string _productId = "testId";
+    private Connection _connection;
+    private Input _input;
+    private Options _options;
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        var input = new Input { Content = "foobar", Repeat = 3 };
+        _connection = new Connection
+        {
+            ShopName = _shopName,
+            AccessToken = _accessToken,
+            ApiVersion = _apiVersion,
+        };
 
-        var connection = new Connection { ConnectionString = "Host=127.0.0.1;Port=12345" };
+        _input = new Input
+        {
+            ProductId = _productId,
+            ProductData = new JObject
+            {
+                ["title"] = $"Updated Test Product",
+                ["body_html"] = "<p>Updated test description</p>",
+                ["vendor"] = "Updated Test Vendor",
+                ["product_type"] = "Updated Test Type",
+            },
+        };
 
-        var options = new Options { Delimiter = ", ", ThrowErrorOnFailure = true, ErrorMessageOnFailure = null };
+        _options = new Options
+        {
+            ThrowErrorOnFailure = true,
+        };
+    }
 
-        var result = Shopify.UpdateProduct(input, connection, options, CancellationToken.None);
+    [TestMethod]
+    public async Task UpdateProduct_SuccessTest()
+    {
+        var result = await Shopify.UpdateProduct(_input, _connection, _options, CancellationToken.None);
 
-        Assert.That(result.Output, Is.EqualTo("foobar, foobar, foobar"));
+        Assert.IsTrue(result.Success);
+    }
+
+    [TestMethod]
+    public async Task UpdateProduct_ShopNameValidationFailureTest()
+    {
+        var invalidConnection = new Connection
+        {
+            ShopName = null,
+            AccessToken = _accessToken,
+            ApiVersion = _apiVersion,
+        };
+
+        var result = await Shopify.UpdateProduct(_input, invalidConnection, new Options(), CancellationToken.None);
+
+        Assert.IsFalse(result.Success);
+        StringAssert.Contains(result.Error.Message, "ShopName is required");
+    }
+
+    [TestMethod]
+    public async Task UpdateProduct_AccessTokenValidationFailureTest()
+    {
+        var invalidConnection = new Connection
+        {
+            ShopName = _shopName,
+            AccessToken = null,
+            ApiVersion = _apiVersion,
+        };
+
+        var result = await Shopify.UpdateProduct(_input, invalidConnection, new Options(), CancellationToken.None);
+
+        Assert.IsFalse(result.Success);
+        StringAssert.Contains(result.Error.Message, "AccessToken is required");
+    }
+
+    [TestMethod]
+    public async Task UpdateProduct_ApiVersionValidationFailureTest()
+    {
+        var invalidConnection = new Connection
+        {
+            ShopName = _shopName,
+            AccessToken = _accessToken,
+            ApiVersion = null,
+        };
+
+        var result = await Shopify.UpdateProduct(_input, invalidConnection, new Options(), CancellationToken.None);
+
+        Assert.IsFalse(result.Success);
+        StringAssert.Contains(result.Error.Message, "ApiVersion is required");
+    }
+
+    [TestMethod]
+    public async Task UpdateProduct_ProductIdValidationFailureTest()
+    {
+        var invalidInput = new Input
+        {
+            ProductId = null,
+            ProductData = new JObject
+            {
+                ["title"] = "Should Fail",
+            },
+        };
+
+        var result = await Shopify.UpdateProduct(invalidInput, _connection, new Options(), CancellationToken.None);
+
+        Assert.IsFalse(result.Success);
+        StringAssert.Contains(result.Error.Message, "ProductId is required");
+    }
+
+    [TestMethod]
+    public async Task UpdateProduct_ProductDataValidationFailureTest()
+    {
+        var invalidInput = new Input
+        {
+            ProductId = _productId,
+            ProductData = null,
+        };
+
+        var result = await Shopify.UpdateProduct(invalidInput, _connection, new Options(), CancellationToken.None);
+
+        Assert.IsFalse(result.Success);
+        StringAssert.Contains(result.Error.Message, "ProductData is required");
     }
 }
