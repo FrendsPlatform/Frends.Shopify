@@ -106,4 +106,51 @@ public class UnitTests
         Assert.IsFalse(result.Success);
         StringAssert.Contains(result.Error.Message, "AccessToken is required");
     }
+
+    [TestMethod]
+    public async Task CreateProduct_ApiVersionValidationFailureTest()
+    {
+        var invalidConnection = new Connection
+        {
+            ShopName = _shopName,
+            AccessToken = _accessToken,
+            ApiVersion = null,
+        };
+
+        var result = await Shopify.CreateProduct(_input, invalidConnection, new Options(), CancellationToken.None);
+
+        Assert.IsFalse(result.Success);
+        StringAssert.Contains(result.Error.Message, "ApiVersion is required");
+    }
+
+    [TestMethod]
+    public async Task CreateProduct_ProductDataValidationFailureTest()
+    {
+        var invalidInput = new Input
+        {
+            ProductData = null,
+        };
+
+        var result = await Shopify.CreateProduct(invalidInput, _connection, new Options(), CancellationToken.None);
+
+        Assert.IsFalse(result.Success);
+        StringAssert.Contains(result.Error.Message, "ProductData is required");
+    }
+
+    [TestMethod]
+    public async Task CreateProduct_ErrorHandlingTest()
+    {
+        _options.ThrowErrorOnFailure = false;
+        _options.ErrorMessageOnFailure = "Custom error message";
+
+        var invalidInput = new Input
+        {
+            ProductData = new { Invalid = "data" },
+        };
+
+        var result = await Shopify.CreateProduct(invalidInput, _connection, _options, CancellationToken.None);
+
+        Assert.IsFalse(result.Success);
+        StringAssert.Contains(result.Error.Message, "Custom error message");
+    }
 }
