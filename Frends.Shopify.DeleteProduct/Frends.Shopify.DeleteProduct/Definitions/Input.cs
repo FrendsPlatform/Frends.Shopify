@@ -1,25 +1,15 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Frends.Shopify.DeleteProduct.Definitions;
 
 /// <summary>
-/// Essential parameters.
+/// Input parameters for Shopify DeleteProduct task.
 /// </summary>
 public class Input
 {
     /// <summary>
-    /// The input string to be repeated and output.
+    /// The ID of the product to delete.
     /// </summary>
-    /// <example>foobar</example>
-    [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("Lorem ipsum dolor sit amet.")]
-    public string Content { get; set; }
-
-    /// <summary>
-    /// Number of times to repeat the input string.
-    /// </summary>
-    /// <example>2</example>
-    [DefaultValue(3)]
-    public int Repeat { get; set; }
+    [Display(Name = "Product Id")]
+    public string ProductId { get; set; }
 }
