@@ -38,7 +38,7 @@ public class UnitTests
     }
 
     [TestMethod]
-    public async Task UpdateProduct_SuccessTest()
+    public async Task DeleteProduct_SuccessTest()
     {
         var result = await Shopify.DeleteProduct(_input, _connection, _options, CancellationToken.None);
 
@@ -46,7 +46,7 @@ public class UnitTests
     }
 
     [TestMethod]
-    public async Task UpdateProduct_ShopNameValidationFailureTest()
+    public async Task DeleteProduct_ShopNameValidationFailureTest()
     {
         var invalidConnection = new Connection
         {
@@ -62,7 +62,7 @@ public class UnitTests
     }
 
     [TestMethod]
-    public async Task UpdateProduct_AccessTokenValidationFailureTest()
+    public async Task DeleteProduct_AccessTokenValidationFailureTest()
     {
         var invalidConnection = new Connection
         {
@@ -78,7 +78,7 @@ public class UnitTests
     }
 
     [TestMethod]
-    public async Task UpdateProduct_ApiVersionValidationFailureTest()
+    public async Task DeleteProduct_ApiVersionValidationFailureTest()
     {
         var invalidConnection = new Connection
         {
@@ -94,7 +94,7 @@ public class UnitTests
     }
 
     [TestMethod]
-    public async Task UpdateProduct_ProductIdValidationFailureTest()
+    public async Task DeleteProduct_ProductIdValidationFailureTest()
     {
         var invalidInput = new Input
         {
