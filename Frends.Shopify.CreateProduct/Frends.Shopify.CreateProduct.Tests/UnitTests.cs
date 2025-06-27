@@ -6,6 +6,33 @@ using Newtonsoft.Json.Linq;
 
 namespace Frends.Shopify.CreateProduct.Tests;
 
+/// <summary>
+/// Test cases for Shopify CreateProduct task.
+/// </summary>
+/// <example>
+/// <code>
+/// // Example test product with variants:
+/// var input = new Input
+/// {
+///     ProductData = new JObject
+///     {
+///         ["product"] = new JObject
+///         {
+///             ["title"] = "Test Product",
+///             ["variants"] = new JArray
+///             {
+///                 new JObject
+///                 {
+///                     ["option1"] = "Size",
+///                     ["price"] = "29.99",
+///                     ["sku"] = "TEST-SIZE"
+///                 }
+///             }
+///         }
+///     }
+/// };
+/// </code>
+/// </example>
 [TestClass]
 public class UnitTests
 {
@@ -17,7 +44,7 @@ public class UnitTests
     private Options _options;
 
     [TestInitialize]
-    public void TestInitialize()
+    public void Init()
     {
         _connection = new Connection
         {
@@ -50,6 +77,30 @@ public class UnitTests
 
         Assert.IsTrue(result.Success);
         Assert.IsNotNull(result.CreatedProduct);
+    }
+
+    [TestMethod]
+    public async Task CreateProduct_SuccessWithVariantsTest()
+    {
+        var variantInput = new Input
+        {
+            ProductData = new JObject
+            {
+                ["title"] = "Variant Test Product",
+                ["variants"] = new JArray
+                {
+                    new JObject
+                    {
+                        ["option1"] = "Size",
+                        ["price"] = "10.99",
+                        ["sku"] = "TEST-SIZE",
+                    },
+                },
+            },
+        };
+
+        var result = await Shopify.CreateProduct(variantInput, _connection, _options, CancellationToken.None);
+        Assert.IsTrue(result.Success);
     }
 
     [TestMethod]
