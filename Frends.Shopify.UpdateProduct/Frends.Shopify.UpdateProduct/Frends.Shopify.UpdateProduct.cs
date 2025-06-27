@@ -51,19 +51,19 @@ public static class Shopify
         try
         {
             if (string.IsNullOrWhiteSpace(connection.ShopName))
-                throw new ArgumentException("ShopName is required", nameof(connection.ShopName));
+                throw new ArgumentException("ShopName is required");
 
             if (string.IsNullOrWhiteSpace(connection.AccessToken))
-                throw new ArgumentException("AccessToken is required", nameof(connection.AccessToken));
+                throw new ArgumentException("AccessToken is required");
 
             if (string.IsNullOrWhiteSpace(connection.ApiVersion))
-                throw new ArgumentException("ApiVersion is required", nameof(connection.ApiVersion));
+                throw new ArgumentException("ApiVersion is required");
 
             if (string.IsNullOrWhiteSpace(input.ProductId))
-                throw new ArgumentException("ProductId is required", nameof(input.ProductId));
+                throw new ArgumentException("ProductId is required");
 
             if (input.ProductData == null)
-                throw new ArgumentException("ProductData is required", nameof(input.ProductData));
+                throw new ArgumentException("ProductData is required");
 
             var payload = new JObject
             {

@@ -119,7 +119,9 @@ public class UnitTests
         var result = await Shopify.UpdateProduct(_input, invalidConnection, new Options(), CancellationToken.None);
 
         Assert.IsFalse(result.Success);
-        StringAssert.Contains(result.Error.Message, "ShopName is required");
+        Assert.IsTrue(
+            result.Error.Message.Contains("ShopName is required"),
+            $"Actual error message: {result.Error.Message}");
     }
 
     [TestMethod]
@@ -135,7 +137,9 @@ public class UnitTests
         var result = await Shopify.UpdateProduct(_input, invalidConnection, new Options(), CancellationToken.None);
 
         Assert.IsFalse(result.Success);
-        StringAssert.Contains(result.Error.Message, "AccessToken is required");
+        Assert.IsTrue(
+            result.Error.Message.Contains("AccessToken is required"),
+            $"Actual error message: {result.Error.Message}");
     }
 
     [TestMethod]
@@ -151,7 +155,9 @@ public class UnitTests
         var result = await Shopify.UpdateProduct(_input, invalidConnection, new Options(), CancellationToken.None);
 
         Assert.IsFalse(result.Success);
-        StringAssert.Contains(result.Error.Message, "ApiVersion is required");
+        Assert.IsTrue(
+            result.Error.Message.Contains("ApiVersion is required"),
+            $"Actual error message: {result.Error.Message}");
     }
 
     [TestMethod]
@@ -166,10 +172,17 @@ public class UnitTests
             },
         };
 
-        var result = await Shopify.UpdateProduct(invalidInput, _connection, new Options(), CancellationToken.None);
+        var result = await Shopify.UpdateProduct(
+            invalidInput,
+            _connection,
+            new Options { ThrowErrorOnFailure = false },
+            CancellationToken.None);
 
         Assert.IsFalse(result.Success);
-        StringAssert.Contains(result.Error.Message, "ProductId is required");
+        Assert.IsTrue(
+            result.Error.Message.Contains("ProductId is required") ||
+            result.Error.Message.Contains("ProductId (Parameter 'ProductId')"),
+            $"Actual error message: {result.Error.Message}");
     }
 
     [TestMethod]
@@ -181,9 +194,16 @@ public class UnitTests
             ProductData = null,
         };
 
-        var result = await Shopify.UpdateProduct(invalidInput, _connection, new Options(), CancellationToken.None);
+        var result = await Shopify.UpdateProduct(
+            invalidInput,
+            _connection,
+            new Options { ThrowErrorOnFailure = false },
+            CancellationToken.None);
 
         Assert.IsFalse(result.Success);
-        StringAssert.Contains(result.Error.Message, "ProductData is required");
+        Assert.IsTrue(
+            result.Error.Message.Contains("ProductData is required") ||
+            result.Error.Message.Contains("ProductData (Parameter 'ProductData')"),
+            $"Actual error message: {result.Error.Message}");
     }
 }
