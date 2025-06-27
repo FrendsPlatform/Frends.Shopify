@@ -6,6 +6,34 @@ using Newtonsoft.Json.Linq;
 
 namespace Frends.Shopify.UpdateProduct.Tests;
 
+/// <summary>
+/// Test cases for Shopify UpdateProduct task.
+/// </summary>
+/// <example>
+/// <code>
+/// // Example test product with variants:
+/// var input = new Input
+/// {
+///     ProductId = "12345",
+///     ProductData = new JObject
+///     {
+///         ["product"] = new JObject
+///         {
+///             ["title"] = "Updated Test Product",
+///             ["variants"] = new JArray
+///             {
+///                 new JObject
+///                 {
+///                     ["option1"] = "Updated Size",
+///                     ["price"] = "39.99",
+///                     ["sku"] = "UPDATED-SIZE"
+///                 }
+///             }
+///         }
+///     }
+/// };
+/// </code>
+/// </example>
 [TestClass]
 public class UnitTests
 {
@@ -50,6 +78,31 @@ public class UnitTests
     {
         var result = await Shopify.UpdateProduct(_input, _connection, _options, CancellationToken.None);
 
+        Assert.IsTrue(result.Success);
+    }
+
+    [TestMethod]
+    public async Task UpdateProduct_SuccessWithVariantsTest()
+    {
+        var variantInput = new Input
+        {
+            ProductId = _productId,
+            ProductData = new JObject
+            {
+                ["title"] = "Updated Variant Test Product",
+                ["variants"] = new JArray
+                {
+                    new JObject
+                    {
+                        ["option1"] = "Updated Size",
+                        ["price"] = "39.99",
+                        ["sku"] = "UPDATED-SIZE",
+                    },
+                },
+            },
+        };
+
+        var result = await Shopify.UpdateProduct(variantInput, _connection, _options, CancellationToken.None);
         Assert.IsTrue(result.Success);
     }
 

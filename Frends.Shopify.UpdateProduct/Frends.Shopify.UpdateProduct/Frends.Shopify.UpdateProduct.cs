@@ -90,7 +90,15 @@ public static class Shopify
                 if (!response.IsSuccessStatusCode)
                 {
                     var error = responseJson["errors"]?.ToString() ?? "Unknown error";
-                    throw new Exception($"Shopify API error: {response.StatusCode} - {error}");
+
+                    if (error.Contains("expected String to be a id"))
+                    {
+                        throw new Exception($"Shopify API error: {response.StatusCode} - ProductId is incorrect or invalid.");
+                    }
+                    else
+                    {
+                        throw new Exception($"Shopify API error: {response.StatusCode} - {error}");
+                    }
                 }
 
                 return new Result(true);
