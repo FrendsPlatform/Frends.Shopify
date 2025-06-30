@@ -82,6 +82,12 @@ public class UnitTests
     [TestMethod]
     public async Task CreateProduct_SuccessTest()
     {
+        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         var result = await Shopify.CreateProduct(input, connection, options, CancellationToken.None);
 
         Assert.IsTrue(result.Success);
@@ -91,6 +97,12 @@ public class UnitTests
     [TestMethod]
     public async Task CreateProduct_SuccessWithVariantsTest()
     {
+        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         var variantInput = new Input
         {
             ProductData = new JObject
@@ -115,6 +127,12 @@ public class UnitTests
     [TestMethod]
     public async Task CreateProduct_ShopNameValidationFailureTest()
     {
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Inconclusive("AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         var invalidConnection = new Connection
         {
             ShopName = null,
@@ -142,6 +160,12 @@ public class UnitTests
     [TestMethod]
     public async Task CreateProduct_AccessTokenValidationFailureTest()
     {
+        if (string.IsNullOrEmpty(shopName))
+        {
+            Assert.Inconclusive("ShopName not configured in environment variables. Test skipped.");
+            return;
+        }
+
         var invalidConnection = new Connection
         {
             ShopName = shopName,
@@ -169,6 +193,12 @@ public class UnitTests
     [TestMethod]
     public async Task CreateProduct_ApiVersionValidationFailureTest()
     {
+        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         var invalidConnection = new Connection
         {
             ShopName = shopName,
@@ -185,6 +215,12 @@ public class UnitTests
     [TestMethod]
     public async Task CreateProduct_ProductDataValidationFailureTest()
     {
+        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         var invalidInput = new Input
         {
             ProductData = null,

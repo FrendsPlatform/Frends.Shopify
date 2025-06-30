@@ -9,6 +9,8 @@ jobs:
     with:
       workdir: Frends.Shopify.CreateProduct
       dotnet_version: 8.0.x
+      env_var_name_1: FRENDS_ShopifyTest_shopName
+      env_var_name_2: FRENDS_ShopifyTest_accessToken
     secrets:
       feed_api_key: ${{ secrets.TASKS_FEED_API_KEY }}
       env_var_value_1: ${{ secrets.SHOPIFY_SHOP_NAME }}
