@@ -42,8 +42,8 @@ public class UnitTests
     private readonly string shopName;
     private readonly string accessToken;
     private readonly string apiVersion = "2024-04";
-    private readonly string productId;
-    private readonly string variantProductId;
+    private readonly string productId = "7323461845095";
+    private readonly string variantProductId = "7323461910631";
     private Connection connection;
     private Input input;
     private Options options;
@@ -53,8 +53,6 @@ public class UnitTests
         DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
         shopName = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_shopName");
         accessToken = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_accessToken");
-        productId = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_productId");
-        variantProductId = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_variantProductId");
     }
 
     [TestInitialize]
@@ -122,7 +120,7 @@ public class UnitTests
                     new JObject
                     {
                         ["option1"] = "Updated Variant Size",
-                        ["price"] = "39.99",
+                        ["price"] = "29.99",
                         ["sku"] = "UPDATED-VARIANT-SIZE",
                     },
                 },

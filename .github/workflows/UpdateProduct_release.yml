@@ -11,11 +11,7 @@ jobs:
       dotnet_version: 8.0.x
       env_var_name_1: FRENDS_ShopifyTest_shopName
       env_var_name_2: FRENDS_ShopifyTest_accessToken
-      env_var_name_3: FRENDS_ShopifyTest_productId
-      env_var_name_4: FRENDS_ShopifyTest_variantProductId
     secrets:
       feed_api_key: ${{ secrets.TASKS_FEED_API_KEY }}
       env_var_value_1: ${{ secrets.SHOPIFY_SHOP_NAME }}
       env_var_value_2: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
-      env_var_value_3: ${{ secrets.SHOPIFY_PRODUCT_ID }}
-      env_var_value_4: ${{ secrets.SHOPIFY_VARIANT_PRODUCT_ID }}
