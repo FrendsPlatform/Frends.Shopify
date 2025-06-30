@@ -26,7 +26,7 @@ namespace Frends.Shopify.CreateProduct.Tests;
 ///                 new JObject
 ///                 {
 ///                     ["option1"] = "Size",
-///                     ["price"] = "29.99",
+///                     ["price"] = "10.99",
 ///                     ["sku"] = "TEST-SIZE"
 ///                 }
 ///             }
