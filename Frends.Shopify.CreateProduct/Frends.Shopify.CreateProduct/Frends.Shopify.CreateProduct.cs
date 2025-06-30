@@ -67,31 +67,30 @@ public static class Shopify
                 ["product"] = (JToken)input.ProductData,
             };
 
-            using (var client = new HttpClient())
+            using var client = new HttpClient();
+
+            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", connection.AccessToken);
+
+            var content = new StringContent(
+                payload.ToString(),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            var response = await client.PostAsync(
+                $"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/products.json",
+                content,
+                cancellationToken);
+
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            var responseJson = JObject.Parse(responseContent);
+
+            if (!response.IsSuccessStatusCode)
             {
-                client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", connection.AccessToken);
-
-                var content = new StringContent(
-                    payload.ToString(),
-                    System.Text.Encoding.UTF8,
-                    "application/json");
-
-                var response = await client.PostAsync(
-                    $"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/products.json",
-                    content,
-                    cancellationToken);
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var responseJson = JObject.Parse(responseContent);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var error = responseJson["errors"]?.ToString() ?? "Unknown error";
-                    throw new Exception($"Shopify API error: {response.StatusCode} - {error}");
-                }
-
-                return new Result(true, responseJson["product"] as JObject);
+                var error = responseJson["errors"]?.ToString() ?? "Unknown error";
+                throw new Exception($"Shopify API error: {response.StatusCode} - {error}");
             }
+
+            return new Result(true, responseJson["product"] as JObject);
         }
         catch (Exception ex)
         {

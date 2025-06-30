@@ -36,24 +36,24 @@ namespace Frends.Shopify.CreateProduct.Tests;
 [TestClass]
 public class UnitTests
 {
-    private readonly string? _shopName = "testName";
-    private readonly string? _accessToken = "testToken";
-    private readonly string _apiVersion = "2024-04";
-    private Connection _connection;
-    private Input _input;
-    private Options _options;
+    private readonly string shopName = "testName";
+    private readonly string accessToken = "testToken";
+    private readonly string apiVersion = "2024-04";
+    private Connection connection;
+    private Input input;
+    private Options options;
 
     [TestInitialize]
     public void Init()
     {
-        _connection = new Connection
+        connection = new Connection
         {
-            ShopName = _shopName,
-            AccessToken = _accessToken,
-            ApiVersion = _apiVersion,
+            ShopName = shopName,
+            AccessToken = accessToken,
+            ApiVersion = apiVersion,
         };
 
-        _input = new Input
+        input = new Input
         {
             ProductData = new JObject
             {
@@ -64,7 +64,7 @@ public class UnitTests
             },
         };
 
-        _options = new Options
+        options = new Options
         {
             ThrowErrorOnFailure = true,
         };
@@ -73,7 +73,7 @@ public class UnitTests
     [TestMethod]
     public async Task CreateProduct_SuccessTest()
     {
-        var result = await Shopify.CreateProduct(_input, _connection, _options, CancellationToken.None);
+        var result = await Shopify.CreateProduct(input, connection, options, CancellationToken.None);
 
         Assert.IsTrue(result.Success);
         Assert.IsNotNull(result.CreatedProduct);
@@ -99,7 +99,7 @@ public class UnitTests
             },
         };
 
-        var result = await Shopify.CreateProduct(variantInput, _connection, _options, CancellationToken.None);
+        var result = await Shopify.CreateProduct(variantInput, connection, options, CancellationToken.None);
         Assert.IsTrue(result.Success);
     }
 
@@ -109,8 +109,8 @@ public class UnitTests
         var invalidConnection = new Connection
         {
             ShopName = null,
-            AccessToken = _accessToken,
-            ApiVersion = _apiVersion,
+            AccessToken = accessToken,
+            ApiVersion = apiVersion,
         };
 
         var input = new Input
@@ -135,9 +135,9 @@ public class UnitTests
     {
         var invalidConnection = new Connection
         {
-            ShopName = _shopName,
+            ShopName = shopName,
             AccessToken = null,
-            ApiVersion = _apiVersion,
+            ApiVersion = apiVersion,
         };
 
         var input = new Input
@@ -162,12 +162,12 @@ public class UnitTests
     {
         var invalidConnection = new Connection
         {
-            ShopName = _shopName,
-            AccessToken = _accessToken,
+            ShopName = shopName,
+            AccessToken = accessToken,
             ApiVersion = null,
         };
 
-        var result = await Shopify.CreateProduct(_input, invalidConnection, new Options(), CancellationToken.None);
+        var result = await Shopify.CreateProduct(input, invalidConnection, new Options(), CancellationToken.None);
 
         Assert.IsFalse(result.Success);
         StringAssert.Contains(result.Error.Message, "ApiVersion is required");
@@ -181,7 +181,7 @@ public class UnitTests
             ProductData = null,
         };
 
-        var result = await Shopify.CreateProduct(invalidInput, _connection, new Options(), CancellationToken.None);
+        var result = await Shopify.CreateProduct(invalidInput, connection, new Options(), CancellationToken.None);
 
         Assert.IsFalse(result.Success);
         StringAssert.Contains(result.Error.Message, "ProductData is required");
@@ -190,15 +190,15 @@ public class UnitTests
     [TestMethod]
     public async Task CreateProduct_ErrorHandlingTest()
     {
-        _options.ThrowErrorOnFailure = false;
-        _options.ErrorMessageOnFailure = "Custom error message";
+        options.ThrowErrorOnFailure = false;
+        options.ErrorMessageOnFailure = "Custom error message";
 
         var invalidInput = new Input
         {
             ProductData = new { Invalid = "data" },
         };
 
-        var result = await Shopify.CreateProduct(invalidInput, _connection, _options, CancellationToken.None);
+        var result = await Shopify.CreateProduct(invalidInput, connection, options, CancellationToken.None);
 
         Assert.IsFalse(result.Success);
         StringAssert.Contains(result.Error.Message, "Custom error message");
