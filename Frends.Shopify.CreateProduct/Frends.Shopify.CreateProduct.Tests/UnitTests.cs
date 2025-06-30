@@ -1,5 +1,7 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using dotenv.net;
 using Frends.Shopify.CreateProduct.Definitions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -36,12 +38,19 @@ namespace Frends.Shopify.CreateProduct.Tests;
 [TestClass]
 public class UnitTests
 {
-    private readonly string shopName = "testName";
-    private readonly string accessToken = "testToken";
+    private readonly string shopName;
+    private readonly string accessToken;
     private readonly string apiVersion = "2024-04";
     private Connection connection;
     private Input input;
     private Options options;
+
+    public UnitTests()
+    {
+        DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
+        shopName = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_shopName");
+        accessToken = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_accessToken");
+    }
 
     [TestInitialize]
     public void Init()
