@@ -1,5 +1,7 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using dotenv.net;
 using Frends.Shopify.UpdateProduct.Definitions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -37,27 +39,37 @@ namespace Frends.Shopify.UpdateProduct.Tests;
 [TestClass]
 public class UnitTests
 {
-    private readonly string _shopName = "testName";
-    private readonly string _accessToken = "testToken";
-    private readonly string _apiVersion = "2024-04";
-    private readonly string _productId = "testId";
-    private Connection _connection;
-    private Input _input;
-    private Options _options;
+    private readonly string shopName;
+    private readonly string accessToken;
+    private readonly string apiVersion = "2024-04";
+    private readonly string productId;
+    private readonly string variantProductId;
+    private Connection connection;
+    private Input input;
+    private Options options;
+
+    public UnitTests()
+    {
+        DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
+        shopName = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_shopName");
+        accessToken = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_accessToken");
+        productId = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_productId");
+        variantProductId = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_variantProductId");
+    }
 
     [TestInitialize]
     public void TestInitialize()
     {
-        _connection = new Connection
+        connection = new Connection
         {
-            ShopName = _shopName,
-            AccessToken = _accessToken,
-            ApiVersion = _apiVersion,
+            ShopName = shopName,
+            AccessToken = accessToken,
+            ApiVersion = apiVersion,
         };
 
-        _input = new Input
+        input = new Input
         {
-            ProductId = _productId,
+            ProductId = productId,
             ProductData = new JObject
             {
                 ["title"] = $"Updated Test Product",
@@ -67,7 +79,7 @@ public class UnitTests
             },
         };
 
-        _options = new Options
+        options = new Options
         {
             ThrowErrorOnFailure = true,
         };
@@ -76,7 +88,13 @@ public class UnitTests
     [TestMethod]
     public async Task UpdateProduct_SuccessTest()
     {
-        var result = await Shopify.UpdateProduct(_input, _connection, _options, CancellationToken.None);
+        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
+        var result = await Shopify.UpdateProduct(input, connection, options, CancellationToken.None);
 
         Assert.IsTrue(result.Success);
     }
@@ -84,39 +102,54 @@ public class UnitTests
     [TestMethod]
     public async Task UpdateProduct_SuccessWithVariantsTest()
     {
+        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         var variantInput = new Input
         {
-            ProductId = _productId,
+            ProductId = variantProductId,
             ProductData = new JObject
             {
                 ["title"] = "Updated Variant Test Product",
+                ["body_html"] = "<p>Updated variant test description</p>",
+                ["vendor"] = "Updated Variant Test Vendor",
+                ["product_type"] = "Updated Variant Test Type",
                 ["variants"] = new JArray
                 {
                     new JObject
                     {
-                        ["option1"] = "Updated Size",
+                        ["option1"] = "Updated Variant Size",
                         ["price"] = "39.99",
-                        ["sku"] = "UPDATED-SIZE",
+                        ["sku"] = "UPDATED-VARIANT-SIZE",
                     },
                 },
             },
         };
 
-        var result = await Shopify.UpdateProduct(variantInput, _connection, _options, CancellationToken.None);
+        var result = await Shopify.UpdateProduct(variantInput, connection, options, CancellationToken.None);
         Assert.IsTrue(result.Success);
     }
 
     [TestMethod]
     public async Task UpdateProduct_ShopNameValidationFailureTest()
     {
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Inconclusive("AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         var invalidConnection = new Connection
         {
             ShopName = null,
-            AccessToken = _accessToken,
-            ApiVersion = _apiVersion,
+            AccessToken = accessToken,
+            ApiVersion = apiVersion,
         };
 
-        var result = await Shopify.UpdateProduct(_input, invalidConnection, new Options(), CancellationToken.None);
+        var result = await Shopify.UpdateProduct(input, invalidConnection, new Options(), CancellationToken.None);
 
         Assert.IsFalse(result.Success);
         Assert.IsTrue(
@@ -127,14 +160,20 @@ public class UnitTests
     [TestMethod]
     public async Task UpdateProduct_AccessTokenValidationFailureTest()
     {
+        if (string.IsNullOrEmpty(shopName))
+        {
+            Assert.Inconclusive("ShopName not configured in environment variables. Test skipped.");
+            return;
+        }
+
         var invalidConnection = new Connection
         {
-            ShopName = _shopName,
+            ShopName = shopName,
             AccessToken = null,
-            ApiVersion = _apiVersion,
+            ApiVersion = apiVersion,
         };
 
-        var result = await Shopify.UpdateProduct(_input, invalidConnection, new Options(), CancellationToken.None);
+        var result = await Shopify.UpdateProduct(input, invalidConnection, new Options(), CancellationToken.None);
 
         Assert.IsFalse(result.Success);
         Assert.IsTrue(
@@ -145,14 +184,20 @@ public class UnitTests
     [TestMethod]
     public async Task UpdateProduct_ApiVersionValidationFailureTest()
     {
+        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         var invalidConnection = new Connection
         {
-            ShopName = _shopName,
-            AccessToken = _accessToken,
+            ShopName = shopName,
+            AccessToken = accessToken,
             ApiVersion = null,
         };
 
-        var result = await Shopify.UpdateProduct(_input, invalidConnection, new Options(), CancellationToken.None);
+        var result = await Shopify.UpdateProduct(input, invalidConnection, new Options(), CancellationToken.None);
 
         Assert.IsFalse(result.Success);
         Assert.IsTrue(
@@ -163,6 +208,12 @@ public class UnitTests
     [TestMethod]
     public async Task UpdateProduct_ProductIdValidationFailureTest()
     {
+        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         var invalidInput = new Input
         {
             ProductId = null,
@@ -174,7 +225,7 @@ public class UnitTests
 
         var result = await Shopify.UpdateProduct(
             invalidInput,
-            _connection,
+            connection,
             new Options { ThrowErrorOnFailure = false },
             CancellationToken.None);
 
@@ -188,15 +239,21 @@ public class UnitTests
     [TestMethod]
     public async Task UpdateProduct_ProductDataValidationFailureTest()
     {
+        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         var invalidInput = new Input
         {
-            ProductId = _productId,
+            ProductId = productId,
             ProductData = null,
         };
 
         var result = await Shopify.UpdateProduct(
             invalidInput,
-            _connection,
+            connection,
             new Options { ThrowErrorOnFailure = false },
             CancellationToken.None);
 

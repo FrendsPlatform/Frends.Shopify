@@ -70,39 +70,41 @@ public static class Shopify
                 ["product"] = JToken.FromObject(input.ProductData),
             };
 
-            using (var client = new HttpClient())
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", connection.AccessToken);
+
+            var content = new StringContent(
+                payload.ToString(),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            var response = await client.PutAsync(
+                $"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/products/{input.ProductId}.json",
+                content,
+                cancellationToken);
+
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            var responseJson = JObject.Parse(responseContent);
+
+            if (!response.IsSuccessStatusCode)
             {
-                client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", connection.AccessToken);
+                var error = responseJson["errors"]?.ToString() ?? responseContent;
 
-                var content = new StringContent(
-                    payload.ToString(),
-                    System.Text.Encoding.UTF8,
-                    "application/json");
-
-                var response = await client.PutAsync(
-                    $"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/products/{input.ProductId}.json",
-                    content,
-                    cancellationToken);
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var responseJson = JObject.Parse(responseContent);
-
-                if (!response.IsSuccessStatusCode)
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    var error = responseJson["errors"]?.ToString() ?? "Unknown error";
-
-                    if (error.Contains("expected String to be a id"))
-                    {
-                        throw new Exception($"Shopify API error: {response.StatusCode} - ProductId is incorrect or invalid.");
-                    }
-                    else
-                    {
-                        throw new Exception($"Shopify API error: {response.StatusCode} - {error}");
-                    }
+                    throw new Exception($"Product with ID '{input.ProductId}' was not found.");
                 }
-
-                return new Result(true);
+                else if (error.Contains("expected String to be a id"))
+                {
+                    throw new Exception($"Invalid Product ID format: '{input.ProductId}'. Product ID should be a valid numeric value.");
+                }
+                else
+                {
+                    throw new Exception($"Shopify API error: {response.StatusCode} - {error}");
+                }
             }
+
+            return new Result(true);
         }
         catch (Exception ex)
         {
