@@ -3,18 +3,31 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Frends.Shopify.GetProduct.Definitions;
 
-// TODO: Remove this class if the task does not make connections
-
 /// <summary>
-/// Connection parameters.
+/// Connection parameters for Shopify GetProduct task.
 /// </summary>
 public class Connection
 {
     /// <summary>
-    /// Connection string to the target service (e.g., database, API endpoint).
+    /// The subdomain of the Shopify store (e.g., myshop for myshop.myshopify.com).
     /// </summary>
-    /// <example>Host=127.0.0.1;Port=5432</example>
+    /// <example>myshop</example>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
-    public string ConnectionString { get; set; }
+    public string ShopName { get; set; }
+
+    /// <summary>
+    /// Shopify Admin API access token for authenticating requests.
+    /// </summary>
+    [DisplayFormat(DataFormatString = "Text")]
+    [DefaultValue("")]
+    public string AccessToken { get; set; }
+
+    /// <summary>
+    /// The version of Shopify API to use
+    /// </summary>
+    /// <example>2023-10</example>
+    [DisplayFormat(DataFormatString = "Text")]
+    [DefaultValue("")]
+    public string ApiVersion { get; set; }
 }

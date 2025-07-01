@@ -6,20 +6,27 @@
 public class Result
 {
     /// <summary>
-    /// Indicates if the task completed successfully.
+    /// Indicates whether the retrieval was successful.
     /// </summary>
     /// <example>true</example>
     public bool Success { get; set; }
 
     /// <summary>
-    /// Input string repeated the specified number of times.
+    /// The product object returned by Shopify.
     /// </summary>
     /// <example>foobar,foobar</example>
-    public string Output { get; set; }
+    public object Product { get; set; }
 
     /// <summary>
     /// Error that occurred during task execution.
     /// </summary>
     /// <example>object { string Message, object { Exception Exception } AdditionalInfo }</example>
     public Error Error { get; set; }
+
+    internal Result(bool success, object product, Error error = null)
+    {
+        Success = success;
+        Product = product;
+        Error = error;
+    }
 }

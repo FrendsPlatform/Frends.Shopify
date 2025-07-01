@@ -9,3 +9,5 @@
 [assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1623:PropertySummaryDocumentationMustMatchAccessors", Justification = "Following Frends documentation guidelines")]
 [assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1629:DocumentationTextMustEndWithAPeriod", Justification = "Following Frends Tasks guidelines")]
 [assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1633:FileMustHaveHeader", Justification = "Following Frends documentation guidelines")]
+[assembly: SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1201:Elements should appear in the correct order", Justification = "Not impacting functionality", Scope = "member", Target = "~M:Frends.Shopify.GetProduct.Definitions.Result.#ctor(System.Boolean,System.Object,Frends.Shopify.GetProduct.Definitions.Error)")]
+[assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:Elements should be documented", Justification = "Not impacting functionality", Scope = "member", Target = "~M:Frends.Shopify.GetProduct.Definitions.Result.#ctor(System.Boolean,System.Object,Frends.Shopify.GetProduct.Definitions.Error)")]
