@@ -51,36 +51,46 @@ public static class Shopify
         try
         {
             if (string.IsNullOrWhiteSpace(connection.ShopName))
-                throw new ArgumentException("ShopName is required", nameof(connection.ShopName));
+                throw new ArgumentException("ShopName is required");
 
             if (string.IsNullOrWhiteSpace(connection.AccessToken))
-                throw new ArgumentException("AccessToken is required", nameof(connection.AccessToken));
+                throw new ArgumentException("AccessToken is required");
 
             if (string.IsNullOrWhiteSpace(connection.ApiVersion))
-                throw new ArgumentException("ApiVersion is required", nameof(connection.ApiVersion));
+                throw new ArgumentException("ApiVersion is required");
 
             if (string.IsNullOrWhiteSpace(input.ProductId))
-                throw new ArgumentException("ProductId is required", nameof(input.ProductId));
+                throw new ArgumentException("ProductId is required");
 
-            using (var client = new HttpClient())
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", connection.AccessToken);
+
+            var response = await client.DeleteAsync(
+                $"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/products/{input.ProductId}.json",
+                cancellationToken);
+
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            var responseJson = JObject.Parse(responseContent);
+
+            if (!response.IsSuccessStatusCode)
             {
-                client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", connection.AccessToken);
+                var error = responseJson["errors"]?.ToString() ?? responseContent;
 
-                var response = await client.DeleteAsync(
-                    $"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/products/{input.ProductId}.json",
-                    cancellationToken);
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var responseJson = JObject.Parse(responseContent);
-
-                if (!response.IsSuccessStatusCode)
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    var error = responseJson["errors"]?.ToString() ?? "Unknown error";
+                    throw new Exception($"Product with ID '{input.ProductId}' was not found.");
+                }
+                else if (error.Contains("expected String to be a id"))
+                {
+                    throw new Exception($"Invalid Product ID format: '{input.ProductId}'. Product ID should be a valid numeric value.");
+                }
+                else
+                {
                     throw new Exception($"Shopify API error: {response.StatusCode} - {error}");
                 }
-
-                return new Result(true);
             }
+
+            return new Result(true);
         }
         catch (Exception ex)
         {
