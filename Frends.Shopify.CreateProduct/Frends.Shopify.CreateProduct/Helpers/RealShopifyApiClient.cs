@@ -11,10 +11,11 @@ namespace Frends.Shopify.CreateProduct.Helpers;
 /// <summary>
 /// Implementation of IShopifyApiClient that communicates with actual Shopify API.
 /// </summary>
-internal class RealShopifyApiClient : IShopifyApiClient
+internal class RealShopifyApiClient : IShopifyApiClient, IDisposable
 {
     private readonly Connection connection;
     private readonly HttpClient httpClient;
+    private bool disposed = false;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RealShopifyApiClient"/> class.
@@ -41,5 +42,28 @@ internal class RealShopifyApiClient : IShopifyApiClient
         var response = await httpClient.PostAsJsonAsync("products.json", new { product = productData }, cancellationToken);
         response.EnsureSuccessStatusCode();
         return JObject.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+    }
+
+    /// <summary>
+    /// Disposes the HttpClient resource.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Disposes the HttpClient resource.
+    /// </summary>
+    /// <param name="disposing">True if disposing managed resources.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposed && disposing)
+        {
+            httpClient?.Dispose();
+        }
+
+        disposed = true;
     }
 }
