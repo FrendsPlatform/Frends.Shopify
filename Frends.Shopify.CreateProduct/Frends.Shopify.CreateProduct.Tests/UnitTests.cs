@@ -6,6 +6,7 @@ using Frends.Shopify.CreateProduct.Definitions;
 using Moq;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using RichardSzalay.MockHttp;
 
 namespace Frends.Shopify.CreateProduct.Tests;
 
@@ -43,11 +44,13 @@ public class UnitTests
     private Connection connection;
     private Input input;
     private Options options;
+    private MockHttpMessageHandler mockHttpHandler;
 
     [SetUp]
     public void Setup()
     {
         mockShopifyClient = new Mock<Helpers.IShopifyApiClient>();
+        mockHttpHandler = new MockHttpMessageHandler();
 
         connection = new Connection
         {
@@ -261,5 +264,15 @@ public class UnitTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error.Message, Does.Contain("Title can't be blank"));
+    }
+
+    [Test]
+    public void RealShopifyApiClient_CreateProductAsync_AfterDispose_ThrowsException()
+    {
+        var client = new Helpers.RealShopifyApiClient(connection);
+        client.Dispose();
+
+        Assert.ThrowsAsync<ObjectDisposedException>(() =>
+            client.CreateProductAsync(input.ProductData, CancellationToken.None));
     }
 }
