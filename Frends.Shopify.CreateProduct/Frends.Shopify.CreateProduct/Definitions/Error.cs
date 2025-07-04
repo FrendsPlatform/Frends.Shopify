@@ -1,4 +1,6 @@
-﻿namespace Frends.Shopify.CreateProduct.Definitions;
+﻿using System;
+
+namespace Frends.Shopify.CreateProduct.Definitions;
 
 /// <summary>
 /// Error that occurred during the task.
@@ -15,5 +17,5 @@ public class Error
     /// Additional information about the error.
     /// </summary>
     /// <example>object { Exception Exception }</example>
-    public dynamic AdditionalInfo { get; set; }
+    public Exception AdditionalInfo { get; set; }
 }

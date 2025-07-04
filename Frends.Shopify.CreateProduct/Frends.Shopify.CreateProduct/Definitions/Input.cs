@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json.Linq;
 
 namespace Frends.Shopify.CreateProduct.Definitions;
 
@@ -14,25 +15,22 @@ public class Input
     /// <code>
     /// new JObject
     /// {
-    ///     ["product"] = new JObject
+    ///     ["title"] = "Test Product",
+    ///     ["body_html"] = "Product Description", 
+    ///     ["vendor"] = "Test Vendor",
+    ///     ["product_type"] = "Test Type",
+    ///     ["variants"] = new JArray
     ///     {
-    ///         ["title"] = "Test Product",
-    ///         ["body_html"] = "Product Description",
-    ///         ["vendor"] = "Test Vendor",
-    ///         ["product_type"] = "Test Type",
-    ///         ["variants"] = new JArray
+    ///         new JObject
     ///         {
-    ///             new JObject
-    ///             {
-    ///                 ["option1"] = "Default",
-    ///                 ["price"] = "9.99",
-    ///                 ["sku"] = "PROD-001"
-    ///             }
+    ///             ["option1"] = "Default",
+    ///             ["price"] = "9.99",
+    ///             ["sku"] = "PROD-001"
     ///         }
     ///     }
     /// }
     /// </code>
     /// </example>
     [Display(Name = "Product Data")]
-    public object ProductData { get; set; }
+    public JObject ProductData { get; set; }
 }
