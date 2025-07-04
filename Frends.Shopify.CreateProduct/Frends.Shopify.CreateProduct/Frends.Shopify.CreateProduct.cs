@@ -1,9 +1,9 @@
-﻿using Frends.Shopify.CreateProduct.Definitions;
-using Frends.Shopify.CreateProduct.Helpers;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using Frends.Shopify.CreateProduct.Definitions;
+using Frends.Shopify.CreateProduct.Helpers;
 
 namespace Frends.Shopify.CreateProduct;
 

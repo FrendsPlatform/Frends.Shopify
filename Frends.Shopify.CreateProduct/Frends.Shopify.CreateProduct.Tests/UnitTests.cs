@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Frends.Shopify.CreateProduct.Definitions;
@@ -227,5 +228,38 @@ public class UnitTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error.Message, Does.Contain("Custom error message"));
+    }
+
+    [Test]
+    public async Task CreateProduct_HttpClientThrows_ReturnsErrorResult()
+    {
+        options.ThrowErrorOnFailure = false;
+
+        mockShopifyClient.Setup(x => x.CreateProductAsync(It.IsAny<JObject>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("Network error"));
+
+        var result = await Shopify.CreateProduct(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("Network error"));
+    }
+
+    [Test]
+    public async Task CreateProduct_MissingRequiredFields_ReturnsError()
+    {
+        options.ThrowErrorOnFailure = false;
+
+        input.ProductData = new JObject
+        {
+            ["body_html"] = "<p>Test</p>",
+        };
+
+        mockShopifyClient.Setup(x => x.CreateProductAsync(It.Is<JObject>(j => j["title"] == null), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("Title can't be blank"));
+
+        var result = await Shopify.CreateProduct(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("Title can't be blank"));
     }
 }

@@ -23,7 +23,7 @@ internal class RealShopifyApiClient : IShopifyApiClient, IDisposable
     /// <param name="connection">Connection parameters.</param>
     public RealShopifyApiClient(Connection connection)
     {
-        this.connection = connection;
+        this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
         httpClient = new HttpClient
         {
             BaseAddress = new Uri($"https://{this.connection.ShopName}.myshopify.com/admin/api/{this.connection.ApiVersion}/"),
