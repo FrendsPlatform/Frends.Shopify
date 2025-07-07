@@ -6,7 +6,6 @@ using Frends.Shopify.CreateProduct.Definitions;
 using Moq;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
-using RichardSzalay.MockHttp;
 
 namespace Frends.Shopify.CreateProduct.Tests;
 
@@ -44,13 +43,11 @@ public class UnitTests
     private Connection connection;
     private Input input;
     private Options options;
-    private MockHttpMessageHandler mockHttpHandler;
 
     [SetUp]
     public void Setup()
     {
         mockShopifyClient = new Mock<Helpers.IShopifyApiClient>();
-        mockHttpHandler = new MockHttpMessageHandler();
 
         connection = new Connection
         {
@@ -145,7 +142,7 @@ public class UnitTests
     }
 
     [Test]
-    public async Task CreateProduct_ShopNameValidationFailureTest()
+    public void CreateProduct_ShopNameValidationFailureTest()
     {
         var invalidConnection = new Connection
         {
@@ -154,15 +151,15 @@ public class UnitTests
             ApiVersion = "2024-04",
         };
 
-        var result = await Shopify.CreateProduct(input, invalidConnection, new Options(), CancellationToken.None, mockShopifyClient.Object);
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.CreateProduct(input, invalidConnection, new Options(), CancellationToken.None, mockShopifyClient.Object));
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Error.Message, Does.Contain("ShopName is required"));
+        Assert.That(ex.Message, Does.Contain("ShopName is required"));
         mockShopifyClient.Verify(x => x.CreateProductAsync(It.IsAny<JObject>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
-    public async Task CreateProduct_AccessTokenValidationFailureTest()
+    public void CreateProduct_AccessTokenValidationFailureTest()
     {
         var invalidConnection = new Connection
         {
@@ -171,15 +168,15 @@ public class UnitTests
             ApiVersion = "2024-04",
         };
 
-        var result = await Shopify.CreateProduct(input, invalidConnection, new Options(), CancellationToken.None, mockShopifyClient.Object);
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.CreateProduct(input, invalidConnection, new Options(), CancellationToken.None, mockShopifyClient.Object));
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Error.Message, Does.Contain("AccessToken is required"));
+        Assert.That(ex.Message, Does.Contain("AccessToken is required"));
         mockShopifyClient.Verify(x => x.CreateProductAsync(It.IsAny<JObject>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
-    public async Task CreateProduct_ApiVersionValidationFailureTest()
+    public void CreateProduct_ApiVersionValidationFailureTest()
     {
         var invalidConnection = new Connection
         {
@@ -188,25 +185,25 @@ public class UnitTests
             ApiVersion = null,
         };
 
-        var result = await Shopify.CreateProduct(input, invalidConnection, new Options(), CancellationToken.None, mockShopifyClient.Object);
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.CreateProduct(input, invalidConnection, new Options(), CancellationToken.None, mockShopifyClient.Object));
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Error.Message, Does.Contain("ApiVersion is required"));
+        Assert.That(ex.Message, Does.Contain("ApiVersion is required"));
         mockShopifyClient.Verify(x => x.CreateProductAsync(It.IsAny<JObject>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
-    public async Task CreateProduct_ProductDataValidationFailureTest()
+    public void CreateProduct_ProductDataValidationFailureTest()
     {
         var invalidInput = new Input
         {
             ProductData = null,
         };
 
-        var result = await Shopify.CreateProduct(invalidInput, connection, new Options(), CancellationToken.None, mockShopifyClient.Object);
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.CreateProduct(invalidInput, connection, new Options(), CancellationToken.None, mockShopifyClient.Object));
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Error.Message, Does.Contain("ProductData is required"));
+        Assert.That(ex.Message, Does.Contain("ProductData is required"));
         mockShopifyClient.Verify(x => x.CreateProductAsync(It.IsAny<JObject>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -267,9 +264,9 @@ public class UnitTests
     }
 
     [Test]
-    public void RealShopifyApiClient_CreateProductAsync_AfterDispose_ThrowsException()
+    public void ShopifyApiClient_CreateProductAsync_AfterDispose_ThrowsException()
     {
-        var client = new Helpers.RealShopifyApiClient(connection);
+        var client = new Helpers.ShopifyApiClient(connection);
         client.Dispose();
 
         Assert.ThrowsAsync<ObjectDisposedException>(() =>

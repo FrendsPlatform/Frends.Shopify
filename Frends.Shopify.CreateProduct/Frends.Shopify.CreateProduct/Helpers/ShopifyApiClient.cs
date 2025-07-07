@@ -11,24 +11,23 @@ namespace Frends.Shopify.CreateProduct.Helpers;
 /// <summary>
 /// Implementation of IShopifyApiClient that communicates with actual Shopify API.
 /// </summary>
-internal class RealShopifyApiClient : IShopifyApiClient, IDisposable
+internal class ShopifyApiClient : IShopifyApiClient, IDisposable
 {
-    private readonly Connection connection;
     private readonly HttpClient httpClient;
     private bool disposed = false;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="RealShopifyApiClient"/> class.
+    /// Initializes a new instance of the <see cref="ShopifyApiClient"/> class.
     /// </summary>
     /// <param name="connection">Connection parameters.</param>
-    public RealShopifyApiClient(Connection connection)
+    public ShopifyApiClient(Connection connection)
     {
-        this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
+        if (connection is null) throw new ArgumentNullException(nameof(connection));
         httpClient = new HttpClient
         {
-            BaseAddress = new Uri($"https://{this.connection.ShopName}.myshopify.com/admin/api/{this.connection.ApiVersion}/"),
+            BaseAddress = new Uri($"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/"),
         };
-        httpClient.DefaultRequestHeaders.Add("X-Shopify-Access-Token", this.connection.AccessToken);
+        httpClient.DefaultRequestHeaders.Add("X-Shopify-Access-Token", connection.AccessToken);
     }
 
     /// <summary>
@@ -49,21 +48,10 @@ internal class RealShopifyApiClient : IShopifyApiClient, IDisposable
     /// </summary>
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+        if (disposed) return;
 
-    /// <summary>
-    /// Disposes the HttpClient resource.
-    /// </summary>
-    /// <param name="disposing">True if disposing managed resources.</param>
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposed && disposing)
-        {
-            httpClient?.Dispose();
-        }
-
+        httpClient?.Dispose();
         disposed = true;
+        GC.SuppressFinalize(this);
     }
 }

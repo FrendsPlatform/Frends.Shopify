@@ -43,7 +43,7 @@ public static class Shopify
             if (input.ProductData == null)
                 throw new ArgumentException("ProductData is required");
 
-            client ??= new RealShopifyApiClient(connection);
+            client ??= new ShopifyApiClient(connection);
 
             var createdProduct = await client.CreateProductAsync(input.ProductData, cancellationToken);
             return new Result(true, createdProduct);
