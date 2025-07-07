@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json.Linq;
 
 namespace Frends.Shopify.UpdateProduct.Definitions;
 
@@ -17,5 +18,5 @@ public class Input
     /// A JSON object representing the fields to update (e.g., title, body_html, variants, images, etc.).
     /// </summary>
     [Display(Name = "Product Data")]
-    public object ProductData { get; set; }
+    public JObject ProductData { get; set; }
 }
