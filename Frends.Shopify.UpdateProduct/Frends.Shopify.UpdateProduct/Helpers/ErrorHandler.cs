@@ -15,7 +15,7 @@ namespace Frends.Shopify.UpdateProduct.Helpers
         /// <param name="throwError">If true, throws the exception. If false, returns a failure result with error details.</param>
         /// <param name="customMessage">Additional custom message included in the error.</param>
         /// <returns>
-        /// Object { bool Success, JObject CreatedProduct, Error Error { string Message, Exception AdditionalInfo } }
+        /// Object { bool Success, Error Error { string Message, Exception AdditionalInfo } }
         /// </returns>
         public static Result Handle(Exception ex, bool throwError, string customMessage)
         {
