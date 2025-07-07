@@ -22,7 +22,11 @@ internal class ShopifyApiClient : IShopifyApiClient, IDisposable
     /// <param name="connection">Connection parameters.</param>
     public ShopifyApiClient(Connection connection)
     {
-        if (connection is null) throw new ArgumentNullException(nameof(connection));
+        ArgumentNullException.ThrowIfNull(connection);
+        if (string.IsNullOrWhiteSpace(connection.ShopName)) throw new ArgumentException("ShopName cannot be null or empty.", nameof(connection));
+        if (string.IsNullOrWhiteSpace(connection.ApiVersion)) throw new ArgumentException("ApiVersion cannot be null or empty.", nameof(connection));
+        if (string.IsNullOrWhiteSpace(connection.AccessToken)) throw new ArgumentException("AccessToken cannot be null or empty.", nameof(connection));
+
         httpClient = new HttpClient
         {
             BaseAddress = new Uri($"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/"),
@@ -38,6 +42,8 @@ internal class ShopifyApiClient : IShopifyApiClient, IDisposable
     /// <returns>JObject containing the Shopify API response with created product details.</returns>
     public async Task<JObject> CreateProductAsync(JObject productData, CancellationToken cancellationToken)
     {
+        if (disposed) throw new ObjectDisposedException(nameof(ShopifyApiClient));
+
         var response = await httpClient.PostAsJsonAsync("products.json", new { product = productData }, cancellationToken);
         response.EnsureSuccessStatusCode();
         return JObject.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
