@@ -42,8 +42,6 @@ internal class ShopifyApiClient : IShopifyApiClient, IDisposable
     /// <returns>JObject containing the Shopify API response with created product details.</returns>
     public async Task<JObject> CreateProductAsync(JObject productData, CancellationToken cancellationToken)
     {
-        if (disposed) throw new ObjectDisposedException(nameof(ShopifyApiClient));
-
         var response = await httpClient.PostAsJsonAsync("products.json", new { product = productData }, cancellationToken);
         response.EnsureSuccessStatusCode();
         return JObject.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
@@ -54,10 +52,6 @@ internal class ShopifyApiClient : IShopifyApiClient, IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (disposed) return;
-
         httpClient?.Dispose();
-        disposed = true;
-        GC.SuppressFinalize(this);
     }
 }
