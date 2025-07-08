@@ -1,6 +1,6 @@
 # Frends.Shopify.DeleteProduct
 
-Description of what the Task will do.
+Deletes a Shopify product.
 
 [![DeleteProduct_build](https://github.com/FrendsPlatform/Frends.Shopify/actions/workflows/DeleteProduct_build_and_test_on_main.yml/badge.svg)](https://github.com/FrendsPlatform/Frends.Shopify/actions/workflows/DeleteProduct_build_and_test_on_main.yml)
 ![Coverage](https://app-github-custom-badges.azurewebsites.net/Badge?key=FrendsPlatform/Frends.Shopify/Frends.Shopify.DeleteProduct|main)

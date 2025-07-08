@@ -14,6 +14,7 @@ public class Connection
     /// <example>myshop</example>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
+    [PasswordPropertyText]
     public string ShopName { get; set; }
 
     /// <summary>
@@ -21,6 +22,7 @@ public class Connection
     /// </summary>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
+    [PasswordPropertyText]
     public string AccessToken { get; set; }
 
     /// <summary>

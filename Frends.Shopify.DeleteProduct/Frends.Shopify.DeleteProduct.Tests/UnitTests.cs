@@ -1,43 +1,36 @@
 using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using dotenv.net;
 using Frends.Shopify.DeleteProduct.Definitions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using NUnit.Framework;
 
 namespace Frends.Shopify.DeleteProduct.Tests;
 
-[TestClass]
+[TestFixture]
 public class UnitTests
 {
-    private readonly string shopName;
-    private readonly string accessToken;
-    private readonly string apiVersion = "2024-04";
-    private readonly string productId = "7323461845095";
+    private Mock<Helpers.IShopifyApiClient> mockShopifyClient;
     private Connection connection;
     private Input input;
     private Options options;
 
-    public UnitTests()
+    [SetUp]
+    public void Setup()
     {
-        DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
-        shopName = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_shopName");
-        accessToken = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_accessToken");
-    }
+        mockShopifyClient = new Mock<Helpers.IShopifyApiClient>();
 
-    [TestInitialize]
-    public void TestInitialize()
-    {
         connection = new Connection
         {
-            ShopName = shopName,
-            AccessToken = accessToken,
-            ApiVersion = apiVersion,
+            ShopName = "test-shop",
+            AccessToken = "test-token",
+            ApiVersion = "2024-04",
         };
 
         input = new Input
         {
-            ProductId = productId,
+            ProductId = "12345",
         };
 
         options = new Options
@@ -46,112 +39,133 @@ public class UnitTests
         };
     }
 
-    [TestMethod]
+    [Test]
     public async Task DeleteProduct_SuccessTest()
     {
-        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
+        mockShopifyClient.Setup(x => x.DeleteProductAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
-        var result = await Shopify.DeleteProduct(input, connection, options, CancellationToken.None);
+        var result = await Shopify.DeleteProduct(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
 
-        Assert.IsTrue(result.Success);
+        Assert.That(result.Success, Is.True);
     }
 
-    [TestMethod]
-    public async Task DeleteProduct_ShopNameValidationFailureTest()
+    [Test]
+    public void DeleteProduct_ShopNameValidationFailureTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         var invalidConnection = new Connection
         {
             ShopName = null,
-            AccessToken = accessToken,
-            ApiVersion = apiVersion,
+            AccessToken = "test-token",
+            ApiVersion = "2024-04",
         };
 
-        var result = await Shopify.DeleteProduct(input, invalidConnection, new Options(), CancellationToken.None);
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.DeleteProduct(input, invalidConnection, new Options(), CancellationToken.None, mockShopifyClient.Object));
 
-        Assert.IsFalse(result.Success);
-        Assert.IsTrue(
-            result.Error.Message.Contains("ShopName is required"),
-            $"Actual error message: {result.Error.Message}");
+        Assert.That(ex.Message, Does.Contain("ShopName is required"));
+        mockShopifyClient.Verify(x => x.DeleteProductAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [TestMethod]
-    public async Task DeleteProduct_AccessTokenValidationFailureTest()
+    [Test]
+    public void DeleteProduct_AccessTokenValidationFailureTest()
     {
-        if (string.IsNullOrEmpty(shopName))
-        {
-            Assert.Inconclusive("ShopName not configured in environment variables. Test skipped.");
-            return;
-        }
-
         var invalidConnection = new Connection
         {
-            ShopName = shopName,
+            ShopName = "test-shop",
             AccessToken = null,
-            ApiVersion = apiVersion,
+            ApiVersion = "2024-04",
         };
 
-        var result = await Shopify.DeleteProduct(input, invalidConnection, new Options(), CancellationToken.None);
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.DeleteProduct(input, invalidConnection, new Options(), CancellationToken.None, mockShopifyClient.Object));
 
-        Assert.IsFalse(result.Success);
-        Assert.IsTrue(
-            result.Error.Message.Contains("AccessToken is required"),
-            $"Actual error message: {result.Error.Message}");
+        Assert.That(ex.Message, Does.Contain("AccessToken is required"));
+        mockShopifyClient.Verify(x => x.DeleteProductAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [TestMethod]
-    public async Task DeleteProduct_ApiVersionValidationFailureTest()
+    [Test]
+    public void DeleteProduct_ApiVersionValidationFailureTest()
     {
-        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         var invalidConnection = new Connection
         {
-            ShopName = shopName,
-            AccessToken = accessToken,
+            ShopName = "test-shop",
+            AccessToken = "test-token",
             ApiVersion = null,
         };
 
-        var result = await Shopify.DeleteProduct(input, invalidConnection, new Options(), CancellationToken.None);
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.DeleteProduct(input, invalidConnection, new Options(), CancellationToken.None, mockShopifyClient.Object));
 
-        Assert.IsFalse(result.Success);
-        Assert.IsTrue(
-            result.Error.Message.Contains("ApiVersion is required"),
-            $"Actual error message: {result.Error.Message}");
+        Assert.That(ex.Message, Does.Contain("ApiVersion is required"));
+        mockShopifyClient.Verify(x => x.DeleteProductAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [TestMethod]
-    public async Task DeleteProduct_ProductIdValidationFailureTest()
+    [Test]
+    public void DeleteProduct_ProductIdValidationFailureTest()
     {
-        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         var invalidInput = new Input
         {
             ProductId = null,
         };
 
-        var result = await Shopify.DeleteProduct(invalidInput, connection, new Options(), CancellationToken.None);
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.DeleteProduct(invalidInput, connection, new Options(), CancellationToken.None, mockShopifyClient.Object));
 
-        Assert.IsFalse(result.Success);
-        Assert.IsTrue(
-            result.Error.Message.Contains("ProductId is required") ||
-            result.Error.Message.Contains("ProductId (Parameter 'ProductId')"),
-            $"Actual error message: {result.Error.Message}");
+        Assert.That(ex.Message, Does.Contain("ProductId is required"));
+        mockShopifyClient.Verify(x => x.DeleteProductAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task DeleteProduct_ErrorHandlingTest()
+    {
+        options.ThrowErrorOnFailure = false;
+        options.ErrorMessageOnFailure = "Custom error message";
+
+        mockShopifyClient.Setup(x => x.DeleteProductAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("API error occurred"));
+
+        var result = await Shopify.DeleteProduct(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("Custom error message"));
+    }
+
+    [Test]
+    public async Task DeleteProduct_HttpClientThrows_ReturnsErrorResult()
+    {
+        options.ThrowErrorOnFailure = false;
+
+        mockShopifyClient.Setup(x => x.DeleteProductAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("Network error"));
+
+        var result = await Shopify.DeleteProduct(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("Network error"));
+    }
+
+    [Test]
+    public void ShopifyApiClient_DeleteProductAsync_AfterDispose_ThrowsException()
+    {
+        var client = new Helpers.ShopifyApiClient(connection);
+        client.Dispose();
+
+        Assert.ThrowsAsync<ObjectDisposedException>(() =>
+            client.DeleteProductAsync(input.ProductId, CancellationToken.None));
+    }
+
+    [Test]
+    public async Task DeleteProduct_NotFoundError_ReturnsAppropriateMessage()
+    {
+        options.ThrowErrorOnFailure = false;
+
+        mockShopifyClient.Setup(x => x.DeleteProductAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("Not Found", null, System.Net.HttpStatusCode.NotFound));
+
+        var result = await Shopify.DeleteProduct(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("Not Found"));
     }
 }
