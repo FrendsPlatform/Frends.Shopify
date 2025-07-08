@@ -34,7 +34,7 @@ internal class ShopifyApiClient : IShopifyApiClient, IDisposable
     /// <summary>
     /// Deletes an existing product in Shopify.
     /// </summary>
-    /// <param name="productId">The ID of the product to update. Must be a valid Shopify product ID.</param>
+    /// <param name="productId">The ID of the product to delete. Must be a valid Shopify product ID.</param>
     /// <param name="cancellationToken">A cancellation token provided by Frends Platform.</param>
     /// <returns>A Task representing the asynchronous delete operation.</returns>
     public async Task DeleteProductAsync(string productId, CancellationToken cancellationToken)
