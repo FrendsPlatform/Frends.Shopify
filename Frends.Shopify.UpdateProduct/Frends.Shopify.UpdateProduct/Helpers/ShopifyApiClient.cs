@@ -3,10 +3,10 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Frends.Shopify.CreateProduct.Definitions;
+using Frends.Shopify.UpdateProduct.Definitions;
 using Newtonsoft.Json.Linq;
 
-namespace Frends.Shopify.CreateProduct.Helpers;
+namespace Frends.Shopify.UpdateProduct.Helpers;
 
 /// <summary>
 /// Implementation of IShopifyApiClient that communicates with actual Shopify API.
@@ -34,16 +34,16 @@ internal class ShopifyApiClient : IShopifyApiClient, IDisposable
     }
 
     /// <summary>
-    /// Creates a new product in Shopify.
+    /// Updates an existing product in Shopify.
     /// </summary>
-    /// <param name="productData">Product data as JObject.</param>
+    /// <param name="productId">The ID of the product to update. Must be a valid Shopify product ID.</param>
+    /// <param name="productData">Product data as JObject containing the fields to update.</param>
     /// <param name="cancellationToken">A cancellation token provided by Frends Platform.</param>
-    /// <returns>JObject containing the Shopify API response with created product details.</returns>
-    public async Task<JObject> CreateProductAsync(JObject productData, CancellationToken cancellationToken)
+    /// <returns>A Task that represents the asynchronous update operation.</returns>
+    public async Task UpdateProductAsync(string productId, JObject productData, CancellationToken cancellationToken)
     {
-        var response = await httpClient.PostAsJsonAsync("products.json", new { product = productData }, cancellationToken);
+        var response = await httpClient.PutAsJsonAsync($"products/{productId}.json", new { product = productData }, cancellationToken);
         response.EnsureSuccessStatusCode();
-        return JObject.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
     }
 
     /// <summary>
