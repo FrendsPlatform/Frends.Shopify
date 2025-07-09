@@ -14,7 +14,6 @@ namespace Frends.Shopify.CreateProduct.Helpers;
 internal class ShopifyApiClient : IShopifyApiClient, IDisposable
 {
     private readonly HttpClient httpClient;
-    private bool disposed = false;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ShopifyApiClient"/> class.
