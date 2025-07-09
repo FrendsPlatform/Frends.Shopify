@@ -14,7 +14,6 @@ public class Connection
     /// <example>myshop</example>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
-    [PasswordPropertyText]
     public string ShopName { get; set; }
 
     /// <summary>
