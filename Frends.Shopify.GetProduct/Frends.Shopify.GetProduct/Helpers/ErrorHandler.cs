@@ -21,14 +21,16 @@ namespace Frends.Shopify.GetProduct.Helpers
         {
             var error = new Error
             {
-                Message = $"{customMessage} {ex.Message}",
+                Message = string.IsNullOrWhiteSpace(customMessage)
+                    ? ex.Message
+                    : $"{customMessage.Trim()} {ex.Message}".Trim(),
                 AdditionalInfo = ex,
             };
 
             if (throwError)
                 throw new Exception(error.Message, ex);
 
-            return new Result(false, error);
+            return new Result(false, null, error);
         }
     }
 }

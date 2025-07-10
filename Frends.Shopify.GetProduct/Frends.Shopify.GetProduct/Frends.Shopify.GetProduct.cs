@@ -49,10 +49,21 @@ public static class Shopify
         }
         catch (Exception ex)
         {
-            return ErrorHandler.Handle(
-                ex,
-                options.ThrowErrorOnFailure,
-                string.IsNullOrEmpty(options.ErrorMessageOnFailure) ? "Failed to get product:" : options.ErrorMessageOnFailure);
+            if (options.ThrowErrorOnFailure)
+            {
+                throw;
+            }
+
+            return new Result(
+                false,
+                null,
+                new Error
+                {
+                    Message = string.IsNullOrEmpty(options.ErrorMessageOnFailure)
+                        ? ex.Message
+                        : options.ErrorMessageOnFailure,
+                    AdditionalInfo = ex,
+                });
         }
     }
 }
