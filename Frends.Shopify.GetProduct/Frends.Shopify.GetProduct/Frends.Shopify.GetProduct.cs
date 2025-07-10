@@ -54,10 +54,7 @@ public static class Shopify
                 throw;
             }
 
-            return new Result(
-                false,
-                null,
-                new Error
+            return new Result(false, null, new Error
                 {
                     Message = string.IsNullOrEmpty(options.ErrorMessageOnFailure)
                         ? ex.Message
