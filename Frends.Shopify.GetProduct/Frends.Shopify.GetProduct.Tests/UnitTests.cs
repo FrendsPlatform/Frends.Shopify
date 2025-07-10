@@ -9,6 +9,9 @@ using NUnit.Framework;
 
 namespace Frends.Shopify.GetProduct.Tests;
 
+/// <summary>
+/// Test cases for Shopify GetProduct task.
+/// </summary>
 [TestFixture]
 public class UnitTests
 {
