@@ -9,24 +9,32 @@ namespace Frends.Shopify.GetOrders.Definitions;
 public class Options
 {
     /// <summary>
-    /// Delimiter to use between the repeated strings.
+    /// Optional. Comma-separated list of fields to return.
     /// </summary>
-    /// <example>,</example>
-    [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue(" ")]
-    public string Delimiter { get; set; }
+    public string Fields { get; set; }
 
     /// <summary>
-    /// Whether to throw an error on failure.
+    /// Optional. Pagination cursor, e.g. nextPage or previousPage.
+    /// </summary>
+    public string PageInfo { get; set; }
+
+    /// <summary>
+    /// Optional. Max number of results per page (1-250). Default is 50.
+    /// </summary>
+    [DefaultValue(50)]
+    public int Limit { get; set; }
+
+    /// <summary>
+    /// Whether to throw an error on failure. True by default.
     /// </summary>
     /// <example>false</example>
     [DefaultValue(true)]
-    public bool ThrowErrorOnFailure { get; set; }
+    public bool ThrowErrorOnFailure { get; set; } = true;
 
     /// <summary>
     /// Overrides the error message on failure.
     /// </summary>
-    /// <example>Custom error message</example>
+    /// <example>Failed to update product.</example>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
     public string ErrorMessageOnFailure { get; set; }

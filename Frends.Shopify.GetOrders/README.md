@@ -1,6 +1,6 @@
 # Frends.Shopify.GetOrders
 
-Description of what the Task will do.
+Retrieves Shopify orders.
 
 [![GetOrders_build](https://github.com/FrendsPlatform/Frends.Shopify/actions/workflows/GetOrders_build_and_test_on_main.yml/badge.svg)](https://github.com/FrendsPlatform/Frends.Shopify/actions/workflows/GetOrders_build_and_test_on_main.yml)
 ![Coverage](https://app-github-custom-badges.azurewebsites.net/Badge?key=FrendsPlatform/Frends.Shopify/Frends.Shopify.GetOrders|main)

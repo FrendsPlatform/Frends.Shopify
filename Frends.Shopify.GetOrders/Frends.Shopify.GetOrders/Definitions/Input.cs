@@ -9,17 +9,27 @@ namespace Frends.Shopify.GetOrders.Definitions;
 public class Input
 {
     /// <summary>
-    /// The input string to be repeated and output.
+    /// Optional. Start date/time in ISO 8601 format.
     /// </summary>
-    /// <example>foobar</example>
-    [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("Lorem ipsum dolor sit amet.")]
-    public string Content { get; set; }
+    [Display(Name = "Created At Min")]
+    public string CreatedAtMin { get; set; }
 
     /// <summary>
-    /// Number of times to repeat the input string.
+    /// Optional. End date/time in ISO 8601 format.
     /// </summary>
-    /// <example>2</example>
-    [DefaultValue(3)]
-    public int Repeat { get; set; }
+    [Display(Name = "Created At Max")]
+    public string CreatedAtMax { get; set; }
+
+    /// <summary>
+    /// Optional. Filter orders by status, e.g. open, closed, cancelled, or any. Default is any.
+    /// </summary>
+    [Display(Name = "Status")]
+    [DefaultValue("any")]
+    public string Status { get; set; }
+
+    /// <summary>
+    /// Optional. Filter by fulfillment status, e.g. shipped, partial, unshipped.
+    /// </summary>
+    [Display(Name = "FulfillmentStatus")]
+    public string FulfillmentStatus { get; set; }
 }

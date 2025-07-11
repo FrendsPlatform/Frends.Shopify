@@ -3,18 +3,24 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Frends.Shopify.GetOrders.Definitions;
 
-// TODO: Remove this class if the task does not make connections
-
 /// <summary>
 /// Connection parameters.
 /// </summary>
 public class Connection
 {
     /// <summary>
-    /// Connection string to the target service (e.g., database, API endpoint).
+    /// Your Shopify store domain.
     /// </summary>
-    /// <example>Host=127.0.0.1;Port=5432</example>
+    /// <example>your-store.myshopify.com</example>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
-    public string ConnectionString { get; set; }
+    public string ShopDomain { get; set; }
+
+    /// <summary>
+    /// Shopify Admin API access token for authenticating requests.
+    /// </summary>
+    [DisplayFormat(DataFormatString = "Text")]
+    [DefaultValue("")]
+    [PasswordPropertyText]
+    public string AccessToken { get; set; }
 }
