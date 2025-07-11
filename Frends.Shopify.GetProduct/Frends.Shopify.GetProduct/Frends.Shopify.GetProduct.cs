@@ -55,12 +55,12 @@ public static class Shopify
             }
 
             return new Result(false, null, new Error
-                {
-                    Message = string.IsNullOrEmpty(options.ErrorMessageOnFailure)
-                        ? ex.Message
-                        : options.ErrorMessageOnFailure,
-                    AdditionalInfo = ex,
-                });
+            {
+                Message = string.IsNullOrEmpty(options.ErrorMessageOnFailure)
+                    ? ex.Message
+                    : options.ErrorMessageOnFailure,
+                AdditionalInfo = ex,
+            });
         }
     }
 }
