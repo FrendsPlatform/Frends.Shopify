@@ -33,6 +33,42 @@ internal class ShopifyApiClient : IShopifyApiClient, IDisposable
     }
 
     /// <summary>
+    /// Parses Shopify's Link header to extract pagination cursors.
+    /// </summary>
+    /// <param name="linkHeader">The Link header value(s) from the HTTP response</param>
+    /// <returns>PageInfo pageInfo { string NextPage, string PreviousPage }</returns>
+    public static PageInfo ParseLinkHeader(IEnumerable<string> linkHeader)
+    {
+        var pageInfo = new PageInfo();
+
+        foreach (var link in linkHeader)
+        {
+            var links = link.Split(',');
+            foreach (var item in links)
+            {
+                if (!item.Contains("page_info=")) continue;
+
+                if (item.Contains("rel=\"next\""))
+                {
+                    var start = item.IndexOf("page_info=", StringComparison.Ordinal) + "page_info=".Length;
+                    var end = item.IndexOfAny(['>', '&'], start);
+                    if (start > 0 && end > start)
+                        pageInfo.NextPage = item[start..end];
+                }
+                else if (item.Contains("rel=\"previous\""))
+                {
+                    var start = item.IndexOf("page_info=", StringComparison.Ordinal) + "page_info=".Length;
+                    var end = item.IndexOfAny(['>', '&'], start);
+                    if (start > 0 && end > start)
+                        pageInfo.PreviousPage = item[start..end];
+                }
+            }
+        }
+
+        return pageInfo;
+    }
+
+    /// <summary>
     /// Retrieves orders from Shopify.
     /// </summary>
     /// <param name="createdAtMin">Optional start date/time in ISO 8601 format.</param>
@@ -95,39 +131,5 @@ internal class ShopifyApiClient : IShopifyApiClient, IDisposable
     public void Dispose()
     {
         httpClient?.Dispose();
-    }
-
-    /// <summary>
-    /// Parses Shopify's Link header to extract pagination cursors.
-    /// </summary>
-    /// <param name="linkHeader">The Link header value(s) from the HTTP response</param>
-    /// <returns>PageInfo pageInfo { string NextPage, string PreviousPage }</returns>
-    private static PageInfo ParseLinkHeader(IEnumerable<string> linkHeader)
-    {
-        var pageInfo = new PageInfo();
-
-        foreach (var link in linkHeader)
-        {
-            var links = link.Split(',');
-            foreach (var item in links)
-            {
-                if (item.Contains("rel=\"next\""))
-                {
-                    var start = item.IndexOf("page_info=", StringComparison.Ordinal) + "page_info=".Length;
-                    var end = item.IndexOf('>', start);
-                    if (start > 0 && end > start)
-                        pageInfo.NextPage = item[start..end];
-                }
-                else if (item.Contains("rel=\"previous\""))
-                {
-                    var start = item.IndexOf("page_info=", StringComparison.Ordinal) + "page_info=".Length;
-                    var end = item.IndexOf('>', start);
-                    if (start > 0 && end > start)
-                        pageInfo.PreviousPage = item[start..end];
-                }
-            }
-        }
-
-        return pageInfo;
     }
 }
