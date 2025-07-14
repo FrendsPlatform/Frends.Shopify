@@ -17,7 +17,7 @@ public class Connection
     public string ShopDomain { get; set; }
 
     /// <summary>
-    /// Shopify Admin API access token for authenticating requests.
+    /// Shopify Admin API access token for authenticating requests (from private app or OAuth).
     /// </summary>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
