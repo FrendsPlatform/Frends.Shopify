@@ -33,10 +33,10 @@ public static class Shopify
         try
         {
             if (string.IsNullOrWhiteSpace(connection.ShopDomain))
-                throw new ArgumentException("ShopDomain is required");
+                throw new Exception("ShopDomain is required");
 
             if (string.IsNullOrWhiteSpace(connection.AccessToken))
-                throw new ArgumentException("AccessToken is required");
+                throw new Exception("AccessToken is required");
 
             client ??= new ShopifyApiClient(connection);
             var response = await client.GetOrdersAsync(input.CreatedAtMin, input.CreatedAtMax, input.Status, input.FulfillmentStatus, options.Fields, options.Limit, options.PageInfo, cancellationToken);
@@ -47,18 +47,7 @@ public static class Shopify
         }
         catch (Exception ex)
         {
-            if (options.ThrowErrorOnFailure)
-            {
-                throw;
-            }
-
-            return new Result(false, null, null, new Error
-            {
-                Message = string.IsNullOrEmpty(options.ErrorMessageOnFailure)
-                    ? ex.Message
-                    : options.ErrorMessageOnFailure,
-                AdditionalInfo = ex,
-            });
+            return ErrorHandler.Handle(ex, options.ThrowErrorOnFailure, options.ErrorMessageOnFailure);
         }
     }
 }
