@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Frends.Shopify.GetCustomers.Definitions;
+using Frends.Shopify.GetCustomers.Helpers;
 
 namespace Frends.Shopify.GetCustomers;
 
@@ -12,66 +14,51 @@ namespace Frends.Shopify.GetCustomers;
 public static class Shopify
 {
     /// <summary>
-    /// Shopifyes the input string the specified number of times.
+    /// Retrieves customers from Shopify
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends-Shopify-GetCustomers)
     /// </summary>
-    /// <param name="input">Essential parameters.</param>
+    /// <param name="input">Input parameters.</param>
     /// <param name="connection">Connection parameters.</param>
     /// <param name="options">Additional parameters.</param>
     /// <param name="cancellationToken">A cancellation token provided by Frends Platform.</param>
-    /// <returns>object { bool Success, string Output, object Error { string Message, dynamic AdditionalInfo } }</returns>
-    // TODO: Remove Connection parameter if the task does not make connections
-    public static Result GetCustomers(
+    /// <param name="client">Optional: Shopify API client instance (for testing)</param>
+    /// <returns>Object { bool Success, List&lt;object&gt; Customers, PageInfo PageInfo, Error Error }</returns>
+    public static async Task<Result> GetCustomers(
         [PropertyTab] Input input,
         [PropertyTab] Connection connection,
         [PropertyTab] Options options,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IShopifyApiClient client = null)
     {
         try
         {
-            // TODO: Do something with connection parameters, e.g., connect to a service.
-            _ = connection.ConnectionString;
+            if (string.IsNullOrWhiteSpace(connection.ShopDomain))
+                throw new ArgumentException("ShopDomain is required");
 
-            // Cancellation token should be provided to methods that support it
-            // and checked during long-running operations, e.g., loops
-            cancellationToken.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(connection.AccessToken))
+                throw new ArgumentException("AccessToken is required");
 
-            var output = string.Join(options.Delimiter, Enumerable.Repeat(input.Content, input.Repeat));
+            client ??= new ShopifyApiClient(connection);
+            var response = await client.GetCustomersAsync(input.CreatedAtMin, input.CreatedAtMax, input.State, options.Fields, options.Limit, options.PageInfo, cancellationToken);
 
-            return new Result
-            {
-                Success = true,
-                Output = output,
-                Error = null,
-            };
+            var customersList = response.Customers?.ToObject<List<object>>();
+
+            return new Result(true, customersList, response.PageInfo);
         }
-        catch (Exception e) when (e is not OperationCanceledException)
+        catch (Exception ex)
         {
             if (options.ThrowErrorOnFailure)
             {
-                if (string.IsNullOrEmpty(options.ErrorMessageOnFailure))
-                    throw new Exception(e.Message, e);
-
-                throw new Exception(options.ErrorMessageOnFailure, e);
+                throw;
             }
 
-            var errorMessage = !string.IsNullOrEmpty(options.ErrorMessageOnFailure)
-                ? $"{options.ErrorMessageOnFailure}: {e.Message}"
-                : e.Message;
-
-            return new Result
+            return new Result(false, null, null, new Error
             {
-                Success = false,
-                Output = null,
-                Error = new Error
-                {
-                    Message = errorMessage,
-                    AdditionalInfo = new
-                    {
-                        Exception = e,
-                    },
-                },
-            };
+                Message = string.IsNullOrEmpty(options.ErrorMessageOnFailure)
+                    ? ex.Message
+                    : options.ErrorMessageOnFailure,
+                AdditionalInfo = ex,
+            });
         }
     }
 }

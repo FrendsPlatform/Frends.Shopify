@@ -21,8 +21,9 @@ public class Input
     public string CreatedAtMax { get; set; }
 
     /// <summary>
-    /// Optional. Filter by customer state: ENABLED, DISABLED, INVITED, DECLINED.
+    /// Optional. Filter by customer state: ENABLED, DISABLED, INVITED, DECLINED, or any. Default is any.
     /// </summary>
-    [Display(Name = "Status")]
-    public string Status { get; set; }
+    [Display(Name = "State")]
+    [DefaultValue("any")]
+    public string State { get; set; }
 }
