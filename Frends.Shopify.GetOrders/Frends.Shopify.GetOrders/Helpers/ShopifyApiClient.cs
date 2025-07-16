@@ -23,7 +23,7 @@ internal class ShopifyApiClient : IShopifyApiClient, IDisposable
     {
         httpClient = new HttpClient
         {
-            BaseAddress = new Uri($"https://{connection.ShopDomain}/admin/api/2023-10/"),
+            BaseAddress = new Uri($"https://{connection.ShopDomain}/admin/api/2025-07/"),
         };
         httpClient.DefaultRequestHeaders.Add("X-Shopify-Access-Token", connection.AccessToken);
     }
