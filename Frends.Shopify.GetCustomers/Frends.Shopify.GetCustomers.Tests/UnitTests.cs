@@ -42,7 +42,7 @@ public class UnitTests
         {
             ThrowErrorOnFailure = true,
             Limit = 50,
-            Fields = "id,created_at,line_items",
+            Fields = "id,created_at,email,first_name,last_name",
         };
     }
 
@@ -149,10 +149,10 @@ public class UnitTests
     [Test]
     public async Task GetCustomers_WithFieldsFilter_SuccessTest()
     {
-        options.Fields = "id,created_at,total_price";
+        options.Fields = "id,created_at,email";
         var mockCustomers = JArray.FromObject(new[]
         {
-            new { id = "1005", created_at = "2024-01-05T08:00:00Z", total_price = "10.99" },
+            new { id = "1005", created_at = "2024-01-05T08:00:00Z", email = "customer@example.com" },
         });
 
         mockShopifyClient.Setup(x => x.GetCustomersAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), options.Fields, It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))

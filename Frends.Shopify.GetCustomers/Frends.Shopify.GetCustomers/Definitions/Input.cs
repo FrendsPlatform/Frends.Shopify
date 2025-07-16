@@ -27,16 +27,14 @@ public class Input
     public string CreatedAtMax { get; set; }
 
     /// <summary>
-    /// Optional. Filter by customer state. Default is any.
+    /// Optional. Filter by customer state.
     /// </summary>
     /// <example>
     /// <code>ENABLED</code>
     /// <code>DISABLED</code>
     /// <code>INVITED</code>
     /// <code>DECLINED</code>
-    /// <code>ANY</code>
     /// </example>
     [Display(Name = "State")]
-    [DefaultValue("any")]
     public string State { get; set; }
 }
