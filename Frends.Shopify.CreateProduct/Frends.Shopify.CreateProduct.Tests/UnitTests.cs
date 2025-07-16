@@ -3,44 +3,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using dotenv.net;
 using Frends.Shopify.CreateProduct.Definitions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Frends.Shopify.CreateProduct.Helpers;
 using Newtonsoft.Json.Linq;
+using NUnit.Framework;
 
 namespace Frends.Shopify.CreateProduct.Tests;
 
-/// <summary>
-/// Test cases for Shopify CreateProduct task.
-/// </summary>
-/// <example>
-/// <code>
-/// // Example test product with variants:
-/// var input = new Input
-/// {
-///     ProductData = new JObject
-///     {
-///         ["product"] = new JObject
-///         {
-///             ["title"] = "Test Product",
-///             ["variants"] = new JArray
-///             {
-///                 new JObject
-///                 {
-///                     ["option1"] = "Size",
-///                     ["price"] = "10.99",
-///                     ["sku"] = "TEST-SIZE"
-///                 }
-///             }
-///         }
-///     }
-/// };
-/// </code>
-/// </example>
-[TestClass]
+[TestFixture]
 public class UnitTests
 {
-    private readonly string shopName;
+    private readonly string shopName = "frendstemplates";
     private readonly string accessToken;
-    private readonly string apiVersion = "2024-04";
+    private readonly string apiVersion = "2025-07";
     private Connection connection;
     private Input input;
     private Options options;
@@ -48,12 +22,11 @@ public class UnitTests
     public UnitTests()
     {
         DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
-        shopName = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_shopName");
         accessToken = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_accessToken");
     }
 
-    [TestInitialize]
-    public void Init()
+    [SetUp]
+    public void Setup()
     {
         connection = new Connection
         {
@@ -66,7 +39,7 @@ public class UnitTests
         {
             ProductData = new JObject
             {
-                ["title"] = $"Test Product",
+                ["title"] = "Test Product",
                 ["body_html"] = "<p>Test description</p>",
                 ["vendor"] = "Test Vendor",
                 ["product_type"] = "Test Type",
@@ -79,93 +52,68 @@ public class UnitTests
         };
     }
 
-    [TestMethod]
+    [Test]
     public async Task CreateProduct_SuccessTest()
     {
-        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
+        if (string.IsNullOrEmpty(accessToken))
         {
-            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
+            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
             return;
         }
 
         var result = await Shopify.CreateProduct(input, connection, options, CancellationToken.None);
 
-        Assert.IsTrue(result.Success);
-        Assert.IsNotNull(result.CreatedProduct);
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.CreatedProduct, Is.Not.Null);
+        Assert.That(result.CreatedProduct["title"]?.ToString(), Is.EqualTo("Test Product"));
     }
 
-    [TestMethod]
-    public async Task CreateProduct_SuccessWithVariantsTest()
-    {
-        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
-        var variantInput = new Input
-        {
-            ProductData = new JObject
-            {
-                ["title"] = "Variant Test Product",
-                ["variants"] = new JArray
-                {
-                    new JObject
-                    {
-                        ["option1"] = "Size",
-                        ["price"] = "10.99",
-                        ["sku"] = "TEST-SIZE",
-                    },
-                },
-            },
-        };
-
-        var result = await Shopify.CreateProduct(variantInput, connection, options, CancellationToken.None);
-        Assert.IsTrue(result.Success);
-    }
-
-    [TestMethod]
-    public async Task CreateProduct_ShopNameValidationFailureTest()
+    [Test]
+    public async Task CreateProduct_WithVariants_SuccessTest()
     {
         if (string.IsNullOrEmpty(accessToken))
         {
-            Assert.Inconclusive("AccessToken not configured in environment variables. Test skipped.");
+            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
             return;
         }
 
-        var invalidConnection = new Connection
+        input.ProductData["title"] = "Variant Test Product";
+        input.ProductData["variants"] = new JArray
         {
-            ShopName = null,
-            AccessToken = accessToken,
-            ApiVersion = apiVersion,
-        };
-
-        var input = new Input
-        {
-            ProductData = new JObject
+            new JObject
             {
-                ["title"] = "Should Fail",
-                ["body_html"] = "<p>Should Fail</p>",
-                ["vendor"] = "Should Fail",
-                ["product_type"] = "Should Fail",
+                ["option1"] = "Size",
+                ["price"] = "10.99",
+                ["sku"] = "TEST-SIZE",
             },
         };
 
-        var result = await Shopify.CreateProduct(input, invalidConnection, new Options(), CancellationToken.None);
+        var result = await Shopify.CreateProduct(input, connection, options, CancellationToken.None);
 
-        Assert.IsFalse(result.Success);
-        StringAssert.Contains(result.Error.Message, "ShopName is required");
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.CreatedProduct["variants"], Is.Not.Null);
+        Assert.That(result.CreatedProduct["variants"][0]["sku"]?.ToString(), Is.EqualTo("TEST-SIZE"));
     }
 
-    [TestMethod]
-    public async Task CreateProduct_AccessTokenValidationFailureTest()
+    [Test]
+    public void CreateProduct_ShopNameValidationFailureTest()
     {
-        if (string.IsNullOrEmpty(shopName))
+        var invalidConnection = new Connection
         {
-            Assert.Inconclusive("ShopName not configured in environment variables. Test skipped.");
-            return;
-        }
+            ShopName = null,
+            AccessToken = "test-token",
+            ApiVersion = apiVersion,
+        };
 
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.CreateProduct(input, invalidConnection, options, CancellationToken.None));
+
+        Assert.That(ex.Message, Does.Contain("ShopName is required"));
+    }
+
+    [Test]
+    public void CreateProduct_AccessTokenValidationFailureTest()
+    {
         var invalidConnection = new Connection
         {
             ShopName = shopName,
@@ -173,32 +121,15 @@ public class UnitTests
             ApiVersion = apiVersion,
         };
 
-        var input = new Input
-        {
-            ProductData = new JObject
-            {
-                ["title"] = "Should Fail",
-                ["body_html"] = "<p>Should Fail</p>",
-                ["vendor"] = "Should Fail",
-                ["product_type"] = "Should Fail",
-            },
-        };
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.CreateProduct(input, invalidConnection, options, CancellationToken.None));
 
-        var result = await Shopify.CreateProduct(input, invalidConnection, new Options(), CancellationToken.None);
-
-        Assert.IsFalse(result.Success);
-        StringAssert.Contains(result.Error.Message, "AccessToken is required");
+        Assert.That(ex.Message, Does.Contain("AccessToken is required"));
     }
 
-    [TestMethod]
-    public async Task CreateProduct_ApiVersionValidationFailureTest()
+    [Test]
+    public void CreateProduct_ApiVersionValidationFailureTest()
     {
-        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         var invalidConnection = new Connection
         {
             ShopName = shopName,
@@ -206,46 +137,78 @@ public class UnitTests
             ApiVersion = null,
         };
 
-        var result = await Shopify.CreateProduct(input, invalidConnection, new Options(), CancellationToken.None);
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.CreateProduct(input, invalidConnection, options, CancellationToken.None));
 
-        Assert.IsFalse(result.Success);
-        StringAssert.Contains(result.Error.Message, "ApiVersion is required");
+        Assert.That(ex.Message, Does.Contain("ApiVersion is required"));
     }
 
-    [TestMethod]
-    public async Task CreateProduct_ProductDataValidationFailureTest()
+    [Test]
+    public void CreateProduct_ProductDataValidationFailureTest()
     {
-        if (string.IsNullOrEmpty(shopName) || string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Inconclusive("ShopName or AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         var invalidInput = new Input
         {
             ProductData = null,
         };
 
-        var result = await Shopify.CreateProduct(invalidInput, connection, new Options(), CancellationToken.None);
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.CreateProduct(invalidInput, connection, options, CancellationToken.None));
 
-        Assert.IsFalse(result.Success);
-        StringAssert.Contains(result.Error.Message, "ProductData is required");
+        Assert.That(ex.Message, Does.Contain("ProductData is required"));
     }
 
-    [TestMethod]
+    [Test]
     public async Task CreateProduct_ErrorHandlingTest()
     {
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         options.ThrowErrorOnFailure = false;
         options.ErrorMessageOnFailure = "Custom error message";
 
         var invalidInput = new Input
         {
-            ProductData = new { Invalid = "data" },
+            ProductData = new JObject
+            {
+                ["invalid_field"] = "This will cause an error",
+            },
         };
 
         var result = await Shopify.CreateProduct(invalidInput, connection, options, CancellationToken.None);
 
-        Assert.IsFalse(result.Success);
-        StringAssert.Contains(result.Error.Message, "Custom error message");
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error, Is.Not.Null);
+        Assert.That(result.Error.Message, Does.Contain("Custom error message"));
+    }
+
+    [Test]
+    public void CreateProduct_Handle_WhenThrowErrorIsTrue_ThrowsException()
+    {
+        var ex = new Exception("Test exception");
+        const string customMessage = "Custom error context";
+
+        var thrownEx = Assert.Throws<Exception>(() =>
+            ErrorHandler.Handle(ex, true, customMessage));
+
+        Assert.That(thrownEx.Message, Is.EqualTo($"{customMessage} {ex.Message}"));
+        Assert.That(thrownEx.InnerException, Is.EqualTo(ex));
+    }
+
+    [Test]
+    public void CreateProduct_Handle_WhenThrowErrorIsFalse_ReturnsErrorResult()
+    {
+        var ex = new Exception("Test exception");
+        const string customMessage = "Custom error context";
+
+        var result = ErrorHandler.Handle(ex, false, customMessage);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.CreatedProduct, Is.Null);
+        Assert.That(result.Error, Is.Not.Null);
+        Assert.That(result.Error.Message, Is.EqualTo($"{customMessage} {ex.Message}"));
+        Assert.That(result.Error.AdditionalInfo, Is.EqualTo(ex));
     }
 }

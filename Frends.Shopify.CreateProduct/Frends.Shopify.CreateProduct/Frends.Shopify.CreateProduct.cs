@@ -14,26 +14,6 @@ namespace Frends.Shopify.CreateProduct;
 public static class Shopify
 {
     /// <summary>
-    /// Error handling
-    /// </summary>
-    private static class ErrorHandler
-    {
-        internal static Result Handle(Exception ex, bool throwError, string customMessage)
-        {
-            var error = new Error
-            {
-                Message = $"{customMessage} {ex.Message}",
-                AdditionalInfo = ex,
-            };
-
-            if (throwError)
-                throw new Exception(error.Message, ex);
-
-            return new Result(false, null, error);
-        }
-    }
-
-    /// <summary>
     /// Creates a product in Shopify
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends-Shopify-CreateProduct)
     /// </summary>
@@ -51,16 +31,16 @@ public static class Shopify
         try
         {
             if (string.IsNullOrWhiteSpace(connection.ShopName))
-                throw new ArgumentException("ShopName is required");
+                throw new Exception("ShopName is required");
 
             if (string.IsNullOrWhiteSpace(connection.AccessToken))
-                throw new ArgumentException("AccessToken is required");
+                throw new Exception("AccessToken is required");
 
             if (string.IsNullOrWhiteSpace(connection.ApiVersion))
-                throw new ArgumentException("ApiVersion is required");
+                throw new Exception("ApiVersion is required");
 
             if (input.ProductData == null)
-                throw new ArgumentException("ProductData is required");
+                throw new Exception("ProductData is required");
 
             var payload = new JObject
             {
@@ -94,10 +74,7 @@ public static class Shopify
         }
         catch (Exception ex)
         {
-            return ErrorHandler.Handle(
-                ex,
-                options.ThrowErrorOnFailure,
-                options.ErrorMessageOnFailure);
+            return Helpers.ErrorHandler.Handle(ex, options.ThrowErrorOnFailure, options.ErrorMessageOnFailure);
         }
     }
 }
