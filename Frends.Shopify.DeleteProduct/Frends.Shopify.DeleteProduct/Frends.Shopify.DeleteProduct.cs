@@ -32,16 +32,16 @@ public static class Shopify
         try
         {
             if (string.IsNullOrWhiteSpace(connection.ShopName))
-                throw new ArgumentException("ShopName is required");
+                throw new Exception("ShopName is required");
 
             if (string.IsNullOrWhiteSpace(connection.AccessToken))
-                throw new ArgumentException("AccessToken is required");
+                throw new Exception("AccessToken is required");
 
             if (string.IsNullOrWhiteSpace(connection.ApiVersion))
-                throw new ArgumentException("ApiVersion is required");
+                throw new Exception("ApiVersion is required");
 
             if (string.IsNullOrWhiteSpace(input.ProductId))
-                throw new ArgumentException("ProductId is required");
+                throw new Exception("ProductId is required");
 
             client ??= new ShopifyApiClient(connection);
 
