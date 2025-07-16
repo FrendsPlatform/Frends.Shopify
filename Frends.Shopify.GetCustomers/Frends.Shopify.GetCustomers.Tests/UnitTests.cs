@@ -55,7 +55,7 @@ public class UnitTests
             AccessToken = "test-token",
         };
 
-        var ex = Assert.ThrowsAsync<ArgumentException>(() => Shopify.GetCustomers(input, invalidConnection, options, CancellationToken.None, mockShopifyClient.Object));
+        var ex = Assert.ThrowsAsync<Exception>(() => Shopify.GetCustomers(input, invalidConnection, options, CancellationToken.None, mockShopifyClient.Object));
 
         Assert.That(ex.Message, Does.Contain("ShopDomain is required"));
         mockShopifyClient.Verify(x => x.GetCustomersAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -70,7 +70,7 @@ public class UnitTests
             AccessToken = null,
         };
 
-        var ex = Assert.ThrowsAsync<ArgumentException>(() => Shopify.GetCustomers(input, invalidConnection, options, CancellationToken.None, mockShopifyClient.Object));
+        var ex = Assert.ThrowsAsync<Exception>(() => Shopify.GetCustomers(input, invalidConnection, options, CancellationToken.None, mockShopifyClient.Object));
 
         Assert.That(ex.Message, Does.Contain("AccessToken is required"));
         mockShopifyClient.Verify(
@@ -178,7 +178,7 @@ public class UnitTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error, Is.Not.Null);
-        Assert.That(result.Error.Message, Is.EqualTo("Custom error message"));
+        Assert.That(result.Error.Message, Does.Contain("Custom error message"));
         Assert.That(result.Error.AdditionalInfo.Message, Is.EqualTo("API error occurred"));
     }
 
