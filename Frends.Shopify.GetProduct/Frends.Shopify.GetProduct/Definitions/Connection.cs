@@ -14,12 +14,17 @@ public class Connection
     /// <example>myshop</example>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
-    [PasswordPropertyText]
     public string ShopName { get; set; }
 
     /// <summary>
     /// Shopify Admin API access token for authenticating requests.
     /// </summary>
+    /// <example>
+    /// Private:
+    /// <code>shpat_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
+    /// OAuth:
+    /// <code>shpca_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
+    /// </example>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
     [PasswordPropertyText]

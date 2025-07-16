@@ -20,11 +20,6 @@ internal class ShopifyApiClient : IShopifyApiClient, IDisposable
     /// <param name="connection">Connection parameters.</param>
     public ShopifyApiClient(Connection connection)
     {
-        ArgumentNullException.ThrowIfNull(connection);
-        if (string.IsNullOrWhiteSpace(connection.ShopName)) throw new ArgumentException("ShopName is required");
-        if (string.IsNullOrWhiteSpace(connection.AccessToken)) throw new ArgumentException("AccessToken is required");
-        if (string.IsNullOrWhiteSpace(connection.ApiVersion)) throw new ArgumentException("ApiVersion is required");
-
         httpClient = new HttpClient
         {
             BaseAddress = new Uri($"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/"),

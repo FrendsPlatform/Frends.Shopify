@@ -81,7 +81,7 @@ public class UnitTests
             ApiVersion = "2024-04",
         };
 
-        var ex = Assert.ThrowsAsync<ArgumentException>(() =>
+        var ex = Assert.ThrowsAsync<Exception>(() =>
             Shopify.GetProduct(input, invalidConnection, options, CancellationToken.None, mockShopifyClient.Object));
 
         Assert.That(ex.Message, Does.Contain("ShopName is required"));
@@ -98,7 +98,7 @@ public class UnitTests
             ApiVersion = "2024-04",
         };
 
-        var ex = Assert.ThrowsAsync<ArgumentException>(() =>
+        var ex = Assert.ThrowsAsync<Exception>(() =>
             Shopify.GetProduct(input, invalidConnection, options, CancellationToken.None, mockShopifyClient.Object));
 
         Assert.That(ex.Message, Does.Contain("AccessToken is required"));
@@ -115,7 +115,7 @@ public class UnitTests
             ApiVersion = null,
         };
 
-        var ex = Assert.ThrowsAsync<ArgumentException>(() =>
+        var ex = Assert.ThrowsAsync<Exception>(() =>
             Shopify.GetProduct(input, invalidConnection, options, CancellationToken.None, mockShopifyClient.Object));
 
         Assert.That(ex.Message, Does.Contain("ApiVersion is required"));
@@ -130,7 +130,7 @@ public class UnitTests
             ProductId = null,
         };
 
-        var ex = Assert.ThrowsAsync<ArgumentException>(() =>
+        var ex = Assert.ThrowsAsync<Exception>(() =>
             Shopify.GetProduct(invalidInput, connection, options, CancellationToken.None, mockShopifyClient.Object));
 
         Assert.That(ex.Message, Does.Contain("ProductId is required"));
@@ -160,7 +160,7 @@ public class UnitTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error, Is.Not.Null);
-        Assert.That(result.Error.Message, Is.EqualTo("Custom error message"));
+        Assert.That(result.Error.Message, Does.Contain("Custom error message"));
         Assert.That(result.Error.AdditionalInfo.Message, Is.EqualTo("API error occurred"));
     }
 

@@ -11,6 +11,9 @@ public class Options
     /// <summary>
     /// Optional. List of specific fields to include in the response.
     /// </summary>
+    /// <example>
+    /// <code>id,title,handle,status,variants,images</code>
+    /// </example>
     public string[] Fields { get; set; }
 
     /// <summary>
@@ -23,7 +26,7 @@ public class Options
     /// <summary>
     /// Overrides the error message on failure.
     /// </summary>
-    /// <example>Failed to update product.</example>
+    /// <example>Failed to retrieve product.</example>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
     public string ErrorMessageOnFailure { get; set; }
