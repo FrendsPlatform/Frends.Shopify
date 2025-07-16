@@ -35,7 +35,6 @@ public class Options
     /// Whether to throw an error on failure. True by default.
     /// </summary>
     /// <example>False</example>
-
     [DefaultValue(true)]
     public bool ThrowErrorOnFailure { get; set; } = true;
 
