@@ -15,25 +15,22 @@ namespace Frends.Shopify.CreateProduct.Tests;
 /// <example>
 /// <code>
 /// // Example test product with variants:
-/// var input = new Input
+/// new JObject
 /// {
-///     ProductData = new JObject
+///     ["title"] = "Test Product",
+///     ["body_html"] = "<p>Test description</p>",
+///     ["vendor"] = "Test Vendor",
+///     ["product_type"] = "Test Type",
+///     ["variants"] = new JArray
 ///     {
-///         ["product"] = new JObject
+///         new JObject
 ///         {
-///             ["title"] = "Test Product",
-///             ["variants"] = new JArray
-///             {
-///                 new JObject
-///                 {
-///                     ["option1"] = "Size",
-///                     ["price"] = "10.99",
-///                     ["sku"] = "TEST-SIZE"
-///                 }
-///             }
+///             ["option1"] = "Default",
+///             ["price"] = "9.99",
+///             ["sku"] = "PROD-001"
 ///         }
 ///     }
-/// };
+/// }
 /// </code>
 /// </example>
 [TestFixture]
