@@ -28,6 +28,5 @@ public class Options
     /// </summary>
     /// <example>Failed to retrieve product.</example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
     public string ErrorMessageOnFailure { get; set; }
 }

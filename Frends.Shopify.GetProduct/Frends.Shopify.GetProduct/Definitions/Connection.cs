@@ -13,7 +13,6 @@ public class Connection
     /// </summary>
     /// <example>myshop</example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
     public string ShopName { get; set; }
 
     /// <summary>
@@ -26,7 +25,6 @@ public class Connection
     /// <code>shpca_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
     /// </example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
     [PasswordPropertyText]
     public string AccessToken { get; set; }
 
@@ -35,6 +33,5 @@ public class Connection
     /// </summary>
     /// <example>2023-10</example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
     public string ApiVersion { get; set; }
 }

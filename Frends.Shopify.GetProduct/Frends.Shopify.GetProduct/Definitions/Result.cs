@@ -1,4 +1,6 @@
-﻿namespace Frends.Shopify.GetProduct.Definitions;
+﻿using Newtonsoft.Json.Linq;
+
+namespace Frends.Shopify.GetProduct.Definitions;
 
 /// <summary>
 /// Result of the task.
@@ -12,7 +14,7 @@ public class Result
     /// <param name="success">True if the operation succeeded.</param>
     /// <param name="product">The retrieved product data.</param>
     /// <param name="error">Error details if the operation failed.</param>
-    internal Result(bool success, object product, Error error = null)
+    internal Result(bool success, JObject product, Error error = null)
     {
         Success = success;
         Product = product;
@@ -29,7 +31,7 @@ public class Result
     /// The product object returned by Shopify.
     /// </summary>
     /// <example>foobar,foobar</example>
-    public object Product { get; set; }
+    public JObject Product { get; set; }
 
     /// <summary>
     /// Error that occurred during task execution.
