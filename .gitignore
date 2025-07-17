@@ -406,3 +406,4 @@ FodyWeavers.xsd
 *.sln.iml
 /Frends.Shopify.CreateProduct/Frends.Shopify.CreateProduct.Tests/.env
 /Frends.Shopify.UpdateProduct/Frends.Shopify.UpdateProduct.Tests/.env
+/Frends.Shopify.DeleteProduct/Frends.Shopify.DeleteProduct.Tests/.env
