@@ -30,7 +30,7 @@ namespace Frends.Shopify.GetCustomers.Helpers
             if (throwError)
                 throw new Exception(error.Message, ex);
 
-            return new Result(false, null, null, error);
+            return new Result(false, null, error);
         }
     }
 }

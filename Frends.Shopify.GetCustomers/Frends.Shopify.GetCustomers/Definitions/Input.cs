@@ -4,37 +4,14 @@ using System.ComponentModel.DataAnnotations;
 namespace Frends.Shopify.GetCustomers.Definitions;
 
 /// <summary>
-/// Essential parameters.
+/// Input parameters for Shopify GetCustomer task.
 /// </summary>
 public class Input
 {
     /// <summary>
-    /// Optional. Start date/time in ISO 8601 format.
+    /// The ID of the customer to retrieve.
     /// </summary>
-    /// <example>
-    /// <code>2025-01-01T00:00:00</code>
-    /// </example>
-    [Display(Name = "Created At Min")]
-    public string CreatedAtMin { get; set; }
-
-    /// <summary>
-    /// Optional. End date/time in ISO 8601 format.
-    /// </summary>
-    /// <example>
-    /// <code>2025-12-31T23:59:59</code>
-    /// </example>
-    [Display(Name = "Created At Max")]
-    public string CreatedAtMax { get; set; }
-
-    /// <summary>
-    /// Optional. Filter by customer state.
-    /// </summary>
-    /// <example>
-    /// <code>ENABLED</code>
-    /// <code>DISABLED</code>
-    /// <code>INVITED</code>
-    /// <code>DECLINED</code>
-    /// </example>
-    [Display(Name = "State")]
-    public string State { get; set; }
+    /// <example>1234567890123</example>
+    [Display(Name = "Customer Id")]
+    public string CustomerId { get; set; }
 }

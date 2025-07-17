@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Frends.Shopify.GetCustomers.Definitions;
-using Frends.Shopify.GetCustomers.Helpers;
+using Newtonsoft.Json.Linq;
 
 namespace Frends.Shopify.GetCustomers;
 
@@ -14,40 +14,73 @@ namespace Frends.Shopify.GetCustomers;
 public static class Shopify
 {
     /// <summary>
-    /// Retrieves customers from Shopify
-    /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends-Shopify-GetCustomers)
+    /// Retrieves a customer from Shopify
+    /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends-Shopify-GetCustomer)
     /// </summary>
     /// <param name="input">Input parameters.</param>
     /// <param name="connection">Connection parameters.</param>
     /// <param name="options">Additional parameters.</param>
     /// <param name="cancellationToken">A cancellation token provided by Frends Platform.</param>
-    /// <param name="client">Optional: Shopify API client instance (for testing)</param>
-    /// <returns>Object { bool Success, List&lt;object&gt; Customers, PageInfo PageInfo, Error Error }</returns>
+    /// <returns>Object { bool Success, JObject Customer, Error Error { string Message, Exception AdditionalInfo } }</returns>
     public static async Task<Result> GetCustomers(
         [PropertyTab] Input input,
         [PropertyTab] Connection connection,
         [PropertyTab] Options options,
-        CancellationToken cancellationToken,
-        IShopifyApiClient client = null)
+        CancellationToken cancellationToken)
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(connection.ShopDomain))
-                throw new Exception("ShopDomain is required");
+            if (string.IsNullOrWhiteSpace(connection.ShopName))
+                throw new Exception("ShopName is required");
 
             if (string.IsNullOrWhiteSpace(connection.AccessToken))
                 throw new Exception("AccessToken is required");
 
-            client ??= new ShopifyApiClient(connection);
-            var response = await client.GetCustomersAsync(input.CreatedAtMin, input.CreatedAtMax, input.State, options.Fields, options.Limit, options.PageInfo, cancellationToken);
+            if (string.IsNullOrWhiteSpace(connection.ApiVersion))
+                throw new Exception("ApiVersion is required");
 
-            var customersList = response.Customers?.ToObject<List<object>>();
+            if (string.IsNullOrWhiteSpace(input.CustomerId))
+                throw new Exception("CustomerId is required");
 
-            return new Result(true, customersList, response.PageInfo);
+            var url = $"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/customers/{input.CustomerId}.json";
+
+            if (options.Fields != null && options.Fields.Length > 0)
+            {
+                var fields = string.Join(",", options.Fields);
+                url += $"?fields={fields}";
+            }
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", connection.AccessToken);
+
+            var response = await client.GetAsync(url, cancellationToken);
+
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            var responseJson = JObject.Parse(responseContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = responseJson["errors"]?.ToString() ?? responseContent;
+
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new Exception($"Customer with ID '{input.CustomerId}' was not found.");
+                }
+                else if (error.Contains("expected String to be a id"))
+                {
+                    throw new Exception($"Invalid Customer ID format: '{input.CustomerId}'. Customer ID should be a valid numeric value.");
+                }
+                else
+                {
+                    throw new Exception($"Shopify API error: {response.StatusCode} - {error}");
+                }
+            }
+
+            return new Result(true, responseJson["customer"] as JObject);
         }
         catch (Exception ex)
         {
-            return ErrorHandler.Handle(ex, options.ThrowErrorOnFailure, options.ErrorMessageOnFailure);
+            return Helpers.ErrorHandler.Handle(ex, options.ThrowErrorOnFailure, string.IsNullOrEmpty(options.ErrorMessageOnFailure) ? "Failed to get customer:" : options.ErrorMessageOnFailure);
         }
     }
 }

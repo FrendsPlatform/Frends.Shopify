@@ -4,23 +4,34 @@ using System.ComponentModel.DataAnnotations;
 namespace Frends.Shopify.GetCustomers.Definitions;
 
 /// <summary>
-/// Connection parameters.
+/// Connection parameters for Shopify GetCustomer task.
 /// </summary>
 public class Connection
 {
     /// <summary>
-    /// Your Shopify store domain.
+    /// The subdomain of the Shopify store (e.g., myshop for myshop.myshopify.com).
     /// </summary>
-    /// <example>your-store.myshopify.com</example>
+    /// <example>myshop</example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
-    public string ShopDomain { get; set; }
+    public string ShopName { get; set; }
 
     /// <summary>
-    /// Shopify Admin API access token for authenticating requests (from private app or OAuth).
+    /// Shopify Admin API access token for authenticating requests.
     /// </summary>
+    /// <example>
+    /// Private:
+    /// <code>shpat_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
+    /// OAuth:
+    /// <code>shpca_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
+    /// </example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
     [PasswordPropertyText]
     public string AccessToken { get; set; }
+
+    /// <summary>
+    /// The version of Shopify API to use
+    /// </summary>
+    /// <example>2025-07</example>
+    [DisplayFormat(DataFormatString = "Text")]
+    public string ApiVersion { get; set; }
 }
