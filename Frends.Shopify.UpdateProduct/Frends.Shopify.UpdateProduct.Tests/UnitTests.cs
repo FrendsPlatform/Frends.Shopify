@@ -1,40 +1,72 @@
 using System;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using dotenv.net;
 using Frends.Shopify.UpdateProduct.Definitions;
-using Moq;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace Frends.Shopify.UpdateProduct.Tests;
 
+/// <summary>
+/// Test cases for Shopify UpdateProduct task.
+/// </summary>
+/// <example>
+/// <code>
+/// // Example test product with variants:
+/// var input = new Input
+/// {
+///     ProductId = "12345",
+///     ProductData = new JObject
+///     {
+///         ["title"] = "Updated Test Product",
+///         ["variants"] = new JArray
+///         {
+///             new JObject
+///             {
+///                 ["option1"] = "Updated Size",
+///                 ["price"] = "39.99",
+///                 ["sku"] = "UPDATED-SIZE"
+///             }
+///         }
+///     }
+/// };
+/// </code>
+/// </example>
 [TestFixture]
 public class UnitTests
 {
-    private Mock<Helpers.IShopifyApiClient> mockShopifyClient;
+    private readonly string shopName = "frendstemplates";
+    private readonly string accessToken;
+    private readonly string apiVersion = "2025-07";
+    private readonly string productId = "7343388950631";
+    private readonly string variantProductId = "7343388983399";
     private Connection connection;
     private Input input;
     private Options options;
 
+    public UnitTests()
+    {
+        DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
+        accessToken = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_accessToken");
+    }
+
     [SetUp]
     public void Setup()
     {
-        mockShopifyClient = new Mock<Helpers.IShopifyApiClient>();
-
         connection = new Connection
         {
-            ShopName = "test-shop",
-            AccessToken = "test-token",
-            ApiVersion = "2024-04",
+            ShopName = shopName,
+            AccessToken = accessToken,
+            ApiVersion = apiVersion,
         };
 
         input = new Input
         {
-            ProductId = "12345",
+            ProductId = productId,
             ProductData = new JObject
             {
-                ["title"] = "Updated Test Product",
+                ["title"] = $"Updated Test Product",
                 ["body_html"] = "<p>Updated test description</p>",
                 ["vendor"] = "Updated Test Vendor",
                 ["product_type"] = "Updated Test Type",
@@ -50,39 +82,48 @@ public class UnitTests
     [Test]
     public async Task UpdateProduct_SuccessTest()
     {
-        mockShopifyClient.Setup(x => x.UpdateProductAsync(It.IsAny<string>(), It.IsAny<JObject>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
 
-        var result = await Shopify.UpdateProduct(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
+        var result = await Shopify.UpdateProduct(input, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.True);
     }
 
     [Test]
-    public async Task UpdateProduct_SuccessWithVariantsTest()
+    public async Task UpdateProduct_WithVariants_SuccessTest()
     {
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         var variantInput = new Input
         {
-            ProductId = "12345",
+            ProductId = variantProductId,
             ProductData = new JObject
             {
                 ["title"] = "Updated Variant Test Product",
+                ["body_html"] = "<p>Updated variant test description</p>",
+                ["vendor"] = "Updated Variant Test Vendor",
+                ["product_type"] = "Updated Variant Test Type",
                 ["variants"] = new JArray
                 {
                     new JObject
                     {
-                        ["option1"] = "Updated Size",
+                        ["option1"] = "Updated Variant Size",
                         ["price"] = "29.99",
-                        ["sku"] = "UPDATED-SIZE",
+                        ["sku"] = "UPDATED-VARIANT-SIZE",
                     },
                 },
             },
         };
 
-        mockShopifyClient.Setup(x => x.UpdateProductAsync(It.IsAny<string>(), It.IsAny<JObject>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        var result = await Shopify.UpdateProduct(variantInput, connection, options, CancellationToken.None, mockShopifyClient.Object);
+        var result = await Shopify.UpdateProduct(variantInput, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.True);
     }
@@ -93,15 +134,14 @@ public class UnitTests
         var invalidConnection = new Connection
         {
             ShopName = null,
-            AccessToken = "test-token",
-            ApiVersion = "2024-04",
+            AccessToken = accessToken,
+            ApiVersion = apiVersion,
         };
 
         var ex = Assert.ThrowsAsync<Exception>(() =>
-            Shopify.UpdateProduct(input, invalidConnection, new Options(), CancellationToken.None, mockShopifyClient.Object));
+            Shopify.UpdateProduct(input, invalidConnection, options, CancellationToken.None));
 
         Assert.That(ex.Message, Does.Contain("ShopName is required"));
-        mockShopifyClient.Verify(x => x.UpdateProductAsync(It.IsAny<string>(), It.IsAny<JObject>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
@@ -109,16 +149,15 @@ public class UnitTests
     {
         var invalidConnection = new Connection
         {
-            ShopName = "test-shop",
+            ShopName = shopName,
             AccessToken = null,
-            ApiVersion = "2024-04",
+            ApiVersion = apiVersion,
         };
 
         var ex = Assert.ThrowsAsync<Exception>(() =>
-            Shopify.UpdateProduct(input, invalidConnection, new Options(), CancellationToken.None, mockShopifyClient.Object));
+            Shopify.UpdateProduct(input, invalidConnection, options, CancellationToken.None));
 
         Assert.That(ex.Message, Does.Contain("AccessToken is required"));
-        mockShopifyClient.Verify(x => x.UpdateProductAsync(It.IsAny<string>(), It.IsAny<JObject>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
@@ -126,16 +165,15 @@ public class UnitTests
     {
         var invalidConnection = new Connection
         {
-            ShopName = "test-shop",
-            AccessToken = "test-token",
+            ShopName = shopName,
+            AccessToken = accessToken,
             ApiVersion = null,
         };
 
         var ex = Assert.ThrowsAsync<Exception>(() =>
-            Shopify.UpdateProduct(input, invalidConnection, new Options(), CancellationToken.None, mockShopifyClient.Object));
+            Shopify.UpdateProduct(input, invalidConnection, options, CancellationToken.None));
 
         Assert.That(ex.Message, Does.Contain("ApiVersion is required"));
-        mockShopifyClient.Verify(x => x.UpdateProductAsync(It.IsAny<string>(), It.IsAny<JObject>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
@@ -151,10 +189,9 @@ public class UnitTests
         };
 
         var ex = Assert.ThrowsAsync<Exception>(() =>
-            Shopify.UpdateProduct(invalidInput, connection, new Options(), CancellationToken.None, mockShopifyClient.Object));
+            Shopify.UpdateProduct(invalidInput, connection, options, CancellationToken.None));
 
         Assert.That(ex.Message, Does.Contain("ProductId is required"));
-        mockShopifyClient.Verify(x => x.UpdateProductAsync(It.IsAny<string>(), It.IsAny<JObject>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
@@ -162,53 +199,41 @@ public class UnitTests
     {
         var invalidInput = new Input
         {
-            ProductId = "12345",
+            ProductId = productId,
             ProductData = null,
         };
 
         var ex = Assert.ThrowsAsync<Exception>(() =>
-            Shopify.UpdateProduct(invalidInput, connection, new Options(), CancellationToken.None, mockShopifyClient.Object));
+            Shopify.UpdateProduct(invalidInput, connection, options, CancellationToken.None));
 
         Assert.That(ex.Message, Does.Contain("ProductData is required"));
-        mockShopifyClient.Verify(x => x.UpdateProductAsync(It.IsAny<string>(), It.IsAny<JObject>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
     public async Task UpdateProduct_ErrorHandlingTest()
     {
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         options.ThrowErrorOnFailure = false;
         options.ErrorMessageOnFailure = "Custom error message";
 
-        mockShopifyClient.Setup(x => x.UpdateProductAsync(It.IsAny<string>(), It.IsAny<JObject>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new Exception("API error occurred"));
+        var invalidInput = new Input
+        {
+            ProductId = "999999999999999999",
+            ProductData = new JObject
+            {
+                ["title"] = "This should fail",
+            },
+        };
 
-        var result = await Shopify.UpdateProduct(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
+        var result = await Shopify.UpdateProduct(invalidInput, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.False);
+        Assert.That(result.Error, Is.Not.Null);
         Assert.That(result.Error.Message, Does.Contain("Custom error message"));
-    }
-
-    [Test]
-    public async Task UpdateProduct_HttpClientThrows_ReturnsErrorResult()
-    {
-        options.ThrowErrorOnFailure = false;
-
-        mockShopifyClient.Setup(x => x.UpdateProductAsync(It.IsAny<string>(), It.IsAny<JObject>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new HttpRequestException("Network error"));
-
-        var result = await Shopify.UpdateProduct(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
-
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Error.Message, Does.Contain("Network error"));
-    }
-
-    [Test]
-    public void ShopifyApiClient_UpdateProductAsync_AfterDispose_ThrowsException()
-    {
-        var client = new Helpers.ShopifyApiClient(connection);
-        client.Dispose();
-
-        Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            client.UpdateProductAsync(input.ProductId, input.ProductData, CancellationToken.None));
     }
 }

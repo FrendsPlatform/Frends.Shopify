@@ -1,9 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Frends.Shopify.UpdateProduct.Definitions;
-using Frends.Shopify.UpdateProduct.Helpers;
+using Newtonsoft.Json.Linq;
 
 namespace Frends.Shopify.UpdateProduct;
 
@@ -20,40 +21,74 @@ public static class Shopify
     /// <param name="connection">Connection parameters.</param>
     /// <param name="options">Additional parameters.</param>
     /// <param name="cancellationToken">A cancellation token provided by Frends Platform.</param>
-    /// <param name="client">Optional: Shopify API client instance (for testing)</param>
     /// <returns>Object { bool Success, Error Error { string Message, Exception AdditionalInfo } }</returns>
     public static async Task<Result> UpdateProduct(
         [PropertyTab] Input input,
         [PropertyTab] Connection connection,
         [PropertyTab] Options options,
-        CancellationToken cancellationToken,
-        IShopifyApiClient client = null)
+        CancellationToken cancellationToken)
     {
         try
         {
             if (string.IsNullOrWhiteSpace(connection.ShopName))
-                throw new ArgumentException("ShopName is required");
+                throw new Exception("ShopName is required");
 
             if (string.IsNullOrWhiteSpace(connection.AccessToken))
-                throw new ArgumentException("AccessToken is required");
+                throw new Exception("AccessToken is required");
 
             if (string.IsNullOrWhiteSpace(connection.ApiVersion))
-                throw new ArgumentException("ApiVersion is required");
+                throw new Exception("ApiVersion is required");
 
             if (string.IsNullOrWhiteSpace(input.ProductId))
-                throw new ArgumentException("ProductId is required");
+                throw new Exception("ProductId is required");
 
             if (input.ProductData == null)
-                throw new ArgumentException("ProductData is required");
+                throw new Exception("ProductData is required");
 
-            client ??= new ShopifyApiClient(connection);
+            var payload = new JObject
+            {
+                ["product"] = JToken.FromObject(input.ProductData),
+            };
 
-            await client.UpdateProductAsync(input.ProductId, input.ProductData, cancellationToken);
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", connection.AccessToken);
+
+            var content = new StringContent(
+                payload.ToString(),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            var response = await client.PutAsync(
+                $"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/products/{input.ProductId}.json",
+                content,
+                cancellationToken);
+
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            var responseJson = JObject.Parse(responseContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = responseJson["errors"]?.ToString() ?? responseContent;
+
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new Exception($"Product with ID '{input.ProductId}' was not found.");
+                }
+                else if (error.Contains("expected String to be a id"))
+                {
+                    throw new Exception($"Invalid Product ID format: '{input.ProductId}'. Product ID should be a valid numeric value.");
+                }
+                else
+                {
+                    throw new Exception($"Shopify API error: {response.StatusCode} - {error}");
+                }
+            }
+
             return new Result(true);
         }
         catch (Exception ex)
         {
-            return ErrorHandler.Handle(ex, options.ThrowErrorOnFailure, options.ErrorMessageOnFailure);
+            return Helpers.ErrorHandler.Handle(ex, options.ThrowErrorOnFailure, options.ErrorMessageOnFailure);
         }
     }
 }
