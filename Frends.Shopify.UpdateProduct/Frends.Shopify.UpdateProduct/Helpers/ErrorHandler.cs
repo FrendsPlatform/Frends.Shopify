@@ -21,7 +21,9 @@ namespace Frends.Shopify.UpdateProduct.Helpers
         {
             var error = new Error
             {
-                Message = $"{customMessage} {ex.Message}",
+                Message = string.IsNullOrWhiteSpace(customMessage)
+                    ? ex.Message
+                    : $"{customMessage.Trim()} {ex.Message}".Trim(),
                 AdditionalInfo = ex,
             };
 

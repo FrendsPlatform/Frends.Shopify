@@ -1,9 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Frends.Shopify.CreateProduct.Definitions;
-using Frends.Shopify.CreateProduct.Helpers;
+using Newtonsoft.Json.Linq;
 
 namespace Frends.Shopify.CreateProduct;
 
@@ -20,37 +21,60 @@ public static class Shopify
     /// <param name="connection">Connection parameters.</param>
     /// <param name="options">Additional parameters.</param>
     /// <param name="cancellationToken">A cancellation token provided by Frends Platform.</param>
-    /// <param name="client">Optional: Shopify API client instance (for testing)</param>
-    /// <returns>Object { bool Success, JObject CreatedProduct, Error Error { string Message, Exception AdditionalInfo } }</returns>
+    /// <returns>Object { bool Success, object CreatedProduct, Error Error { string Message, Exception AdditionalInfo } }</returns>
     public static async Task<Result> CreateProduct(
         [PropertyTab] Input input,
         [PropertyTab] Connection connection,
         [PropertyTab] Options options,
-        CancellationToken cancellationToken,
-        IShopifyApiClient client = null)
+        CancellationToken cancellationToken)
     {
         try
         {
             if (string.IsNullOrWhiteSpace(connection.ShopName))
-                throw new ArgumentException("ShopName is required");
+                throw new Exception("ShopName is required");
 
             if (string.IsNullOrWhiteSpace(connection.AccessToken))
-                throw new ArgumentException("AccessToken is required");
+                throw new Exception("AccessToken is required");
 
             if (string.IsNullOrWhiteSpace(connection.ApiVersion))
-                throw new ArgumentException("ApiVersion is required");
+                throw new Exception("ApiVersion is required");
 
             if (input.ProductData == null)
-                throw new ArgumentException("ProductData is required");
+                throw new Exception("ProductData is required");
 
-            client ??= new ShopifyApiClient(connection);
+            var payload = new JObject
+            {
+                ["product"] = (JToken)input.ProductData,
+            };
 
-            var createdProduct = await client.CreateProductAsync(input.ProductData, cancellationToken);
-            return new Result(true, createdProduct);
+            using var client = new HttpClient();
+
+            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", connection.AccessToken);
+
+            var content = new StringContent(
+                payload.ToString(),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            var response = await client.PostAsync(
+                $"https://{connection.ShopName}.myshopify.com/admin/api/{connection.ApiVersion}/products.json",
+                content,
+                cancellationToken);
+
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            var responseJson = JObject.Parse(responseContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = responseJson["errors"]?.ToString() ?? "Unknown error";
+                throw new Exception($"Shopify API error: {response.StatusCode} - {error}");
+            }
+
+            return new Result(true, responseJson["product"] as JObject);
         }
         catch (Exception ex)
         {
-            return ErrorHandler.Handle(ex, options.ThrowErrorOnFailure, options.ErrorMessageOnFailure);
+            return Helpers.ErrorHandler.Handle(ex, options.ThrowErrorOnFailure, options.ErrorMessageOnFailure);
         }
     }
 }

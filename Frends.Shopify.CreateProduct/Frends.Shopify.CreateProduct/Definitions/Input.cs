@@ -13,19 +13,20 @@ public class Input
     /// </summary>
     /// <example>
     /// <code>
+    /// Example test product with variants:
     /// new JObject
     /// {
     ///     ["title"] = "Test Product",
-    ///     ["body_html"] = "Product Description",
+    ///     ["body_html"] = "<p>Test description</p>",
     ///     ["vendor"] = "Test Vendor",
     ///     ["product_type"] = "Test Type",
     ///     ["variants"] = new JArray
     ///     {
     ///         new JObject
     ///         {
-    ///             ["option1"] = "Default",
-    ///             ["price"] = "9.99",
-    ///             ["sku"] = "PROD-001"
+    ///             ["option1"] = "Size",
+    ///             ["price"] = "10.99",
+    ///             ["sku"] = "TEST-SIZE"
     ///         }
     ///     }
     /// }
