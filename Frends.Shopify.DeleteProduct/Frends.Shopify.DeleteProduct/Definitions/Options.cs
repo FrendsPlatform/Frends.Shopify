@@ -20,6 +20,5 @@ public class Options
     /// </summary>
     /// <example>Failed to update product.</example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
     public string ErrorMessageOnFailure { get; set; }
 }
