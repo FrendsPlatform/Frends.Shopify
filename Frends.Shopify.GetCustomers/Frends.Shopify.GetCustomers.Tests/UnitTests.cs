@@ -58,7 +58,7 @@ public class UnitTests
             return;
         }
 
-        var result = await Shopify.GetCustomers(input, connection, options, CancellationToken.None);
+        var result = await Shopify.GetCustomer(input, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Customer, Is.Not.Null);
@@ -76,7 +76,7 @@ public class UnitTests
 
         options.Fields = ["id", "email", "first_name"];
 
-        var result = await Shopify.GetCustomers(input, connection, options, CancellationToken.None);
+        var result = await Shopify.GetCustomer(input, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Customer, Is.Not.Null);
@@ -96,7 +96,7 @@ public class UnitTests
         };
 
         var ex = Assert.ThrowsAsync<Exception>(() =>
-            Shopify.GetCustomers(input, invalidConnection, options, CancellationToken.None));
+            Shopify.GetCustomer(input, invalidConnection, options, CancellationToken.None));
 
         Assert.That(ex.Message, Does.Contain("ShopName is required"));
     }
@@ -112,7 +112,7 @@ public class UnitTests
         };
 
         var ex = Assert.ThrowsAsync<Exception>(() =>
-            Shopify.GetCustomers(input, invalidConnection, options, CancellationToken.None));
+            Shopify.GetCustomer(input, invalidConnection, options, CancellationToken.None));
 
         Assert.That(ex.Message, Does.Contain("AccessToken is required"));
     }
@@ -128,7 +128,7 @@ public class UnitTests
         };
 
         var ex = Assert.ThrowsAsync<Exception>(() =>
-            Shopify.GetCustomers(input, invalidConnection, options, CancellationToken.None));
+            Shopify.GetCustomer(input, invalidConnection, options, CancellationToken.None));
 
         Assert.That(ex.Message, Does.Contain("ApiVersion is required"));
     }
@@ -142,7 +142,7 @@ public class UnitTests
         };
 
         var ex = Assert.ThrowsAsync<Exception>(() =>
-            Shopify.GetCustomers(invalidInput, connection, options, CancellationToken.None));
+            Shopify.GetCustomer(invalidInput, connection, options, CancellationToken.None));
 
         Assert.That(ex.Message, Does.Contain("CustomerId is required"));
     }
@@ -164,7 +164,7 @@ public class UnitTests
             CustomerId = "999999999999999999",
         };
 
-        var result = await Shopify.GetCustomers(invalidInput, connection, options, CancellationToken.None);
+        var result = await Shopify.GetCustomer(invalidInput, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error, Is.Not.Null);

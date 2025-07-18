@@ -22,7 +22,7 @@ public static class Shopify
     /// <param name="options">Additional parameters.</param>
     /// <param name="cancellationToken">A cancellation token provided by Frends Platform.</param>
     /// <returns>Object { bool Success, JObject Customer, Error Error { string Message, Exception AdditionalInfo } }</returns>
-    public static async Task<Result> GetCustomers(
+    public static async Task<Result> GetCustomer(
         [PropertyTab] Input input,
         [PropertyTab] Connection connection,
         [PropertyTab] Options options,
