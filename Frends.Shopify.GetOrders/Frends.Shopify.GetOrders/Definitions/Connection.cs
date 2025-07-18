@@ -13,7 +13,6 @@ public class Connection
     /// </summary>
     /// <example>your-store.myshopify.com</example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
     public string ShopDomain { get; set; }
 
     /// <summary>
@@ -26,7 +25,13 @@ public class Connection
     /// <code>shpca_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
     /// </example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
     [PasswordPropertyText]
     public string AccessToken { get; set; }
+
+    /// <summary>
+    /// The version of Shopify API to use
+    /// </summary>
+    /// <example>2025-07</example>
+    [DisplayFormat(DataFormatString = "Text")]
+    public string ApiVersion { get; set; }
 }

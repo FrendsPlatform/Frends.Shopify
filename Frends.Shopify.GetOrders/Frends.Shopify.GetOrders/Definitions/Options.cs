@@ -12,7 +12,7 @@ public class Options
     /// Optional. Comma-separated list of fields to return.
     /// </summary>
     /// <example>
-    /// <code>id,line_items,name,total_price</code>
+    /// <code>id,created_at,total_price</code>
     /// </example>
     public string Fields { get; set; }
 
@@ -43,6 +43,5 @@ public class Options
     /// </summary>
     /// <example>Failed to retrieve orders from store</example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
     public string ErrorMessageOnFailure { get; set; }
 }

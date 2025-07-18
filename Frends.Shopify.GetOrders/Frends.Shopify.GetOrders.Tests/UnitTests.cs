@@ -1,50 +1,114 @@
 using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using dotenv.net;
 using Frends.Shopify.GetOrders.Definitions;
 using Frends.Shopify.GetOrders.Helpers;
-using Moq;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace Frends.Shopify.GetOrders.Tests;
 
-/// <summary>
-/// Test cases for Shopify GetOrders task.
-/// </summary>
 [TestFixture]
 public class UnitTests
 {
-    private Mock<IShopifyApiClient> mockShopifyClient;
+    private readonly string shopDomain = "frendstemplates.myshopify.com";
+    private readonly string accessToken;
+    private readonly string apiVersion = "2025-07";
     private Connection connection;
     private Input input;
     private Options options;
 
+    public UnitTests()
+    {
+        DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
+        accessToken = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_accessToken");
+    }
+
     [SetUp]
     public void Setup()
     {
-        mockShopifyClient = new Mock<IShopifyApiClient>();
-
         connection = new Connection
         {
-            ShopDomain = "test-shop.myshopify.com",
-            AccessToken = "test-token",
+            ShopDomain = shopDomain,
+            AccessToken = accessToken,
+            ApiVersion = apiVersion,
         };
 
         input = new Input
         {
-            CreatedAtMin = "2024-01-01T00:00:00Z",
-            CreatedAtMax = "2024-01-31T23:59:59Z",
+            CreatedAtMin = "2023-01-01T00:00:00Z",
+            CreatedAtMax = "2024-07-10T07:07:32Z",
             Status = "any",
-            FulfillmentStatus = "shipped",
+            FulfillmentStatus = null,
         };
 
         options = new Options
         {
             ThrowErrorOnFailure = true,
-            Limit = 50,
-            Fields = "id,created_at,line_items",
+            Limit = 5,
+            Fields = "id,created_at,total_price",
         };
+    }
+
+    [Test]
+    public async Task GetOrders_SuccessTest()
+    {
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
+        var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Orders, Is.Not.Null);
+        Assert.That(result.Orders.Count, Is.LessThanOrEqualTo(options.Limit));
+    }
+
+    [Test]
+    public async Task GetOrders_WithFields_SuccessTest()
+    {
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
+        options.Fields = "id,created_at,total_price";
+
+        var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None);
+
+        Console.WriteLine($"Retrieved {result.Orders?.Count ?? 0} orders:");
+        if (result.Orders != null)
+        {
+            foreach (var order in result.Orders)
+            {
+                Console.WriteLine(JObject.FromObject(order).ToString());
+            }
+        }
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Orders, Is.Not.Null);
+    }
+
+    [Test]
+    public async Task GetOrders_WithStatusFilter_SuccessTest()
+    {
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
+        input.Status = "closed";
+
+        var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Orders, Is.Not.Null);
     }
 
     [Test]
@@ -53,13 +117,14 @@ public class UnitTests
         var invalidConnection = new Connection
         {
             ShopDomain = null,
-            AccessToken = "test-token",
+            AccessToken = accessToken,
+            ApiVersion = apiVersion,
         };
 
-        var ex = Assert.ThrowsAsync<Exception>(() => Shopify.GetOrders(input, invalidConnection, options, CancellationToken.None, mockShopifyClient.Object));
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.GetOrders(input, invalidConnection, options, CancellationToken.None));
 
         Assert.That(ex.Message, Does.Contain("ShopDomain is required"));
-        mockShopifyClient.Verify(x => x.GetOrdersAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
@@ -67,120 +132,112 @@ public class UnitTests
     {
         var invalidConnection = new Connection
         {
-            ShopDomain = "test-shop.myshopify.com",
+            ShopDomain = shopDomain,
             AccessToken = null,
+            ApiVersion = apiVersion,
         };
 
-        var ex = Assert.ThrowsAsync<Exception>(() => Shopify.GetOrders(input, invalidConnection, options, CancellationToken.None, mockShopifyClient.Object));
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.GetOrders(input, invalidConnection, options, CancellationToken.None));
 
         Assert.That(ex.Message, Does.Contain("AccessToken is required"));
-        mockShopifyClient.Verify(
-            x => x.GetOrdersAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
-    public async Task GetOrders_SuccessTest()
+    public void GetOrders_ApiVersionValidationFailureTest()
     {
-        var mockOrders = JArray.FromObject(new[]
+        var invalidConnection = new Connection
         {
-            new { id = "1001", created_at = "2024-01-15T10:00:00Z" },
-            new { id = "1002", created_at = "2024-01-20T11:00:00Z" },
-        });
-
-        var mockResponse = new OrdersResponse
-        {
-            Orders = mockOrders,
-            PageInfo = new PageInfo { NextPage = "next-page-cursor" },
+            ShopDomain = shopDomain,
+            AccessToken = accessToken,
+            ApiVersion = null,
         };
 
-        mockShopifyClient.Setup(x => x.GetOrdersAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(mockResponse);
+        var ex = Assert.ThrowsAsync<Exception>(() =>
+            Shopify.GetOrders(input, invalidConnection, options, CancellationToken.None));
 
-        var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
-
-        Assert.That(result.Success, Is.True);
-        Assert.That(result.Orders, Is.Not.Null);
-        Assert.That(result.Orders.Count, Is.EqualTo(2));
-        Assert.That(result.PageInfo.NextPage, Is.EqualTo("next-page-cursor"));
-    }
-
-    [Test]
-    public async Task GetOrders_WithPageInfo_SuccessTest()
-    {
-        options.PageInfo = "next-page-cursor";
-        var mockOrders = JArray.FromObject(new[]
-        {
-            new { id = "1003", created_at = "2024-01-25T12:00:00Z" },
-        });
-
-        var mockResponse = new OrdersResponse
-        {
-            Orders = mockOrders,
-            PageInfo = new PageInfo { PreviousPage = "prev-page-cursor" },
-        };
-
-        mockShopifyClient.Setup(x => x.GetOrdersAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), options.PageInfo, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(mockResponse);
-
-        var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
-
-        Assert.That(result.Success, Is.True);
-        Assert.That(result.Orders.Count, Is.EqualTo(1));
-        Assert.That(result.PageInfo.PreviousPage, Is.EqualTo("prev-page-cursor"));
-    }
-
-    [Test]
-    public async Task GetOrders_WithStatusFilter_SuccessTest()
-    {
-        input.Status = "closed";
-        var mockOrders = JArray.FromObject(new[]
-        {
-            new { id = "1004", created_at = "2024-01-10T09:00:00Z", status = "closed" },
-        });
-
-        mockShopifyClient.Setup(x => x.GetOrdersAsync(It.IsAny<string>(), It.IsAny<string>(), input.Status, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new OrdersResponse { Orders = mockOrders });
-
-        var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
-
-        Assert.That(result.Success, Is.True);
-        Assert.That(result.Orders.Count, Is.EqualTo(1));
-    }
-
-    [Test]
-    public async Task GetOrders_WithFieldsFilter_SuccessTest()
-    {
-        options.Fields = "id,created_at,total_price";
-        var mockOrders = JArray.FromObject(new[]
-        {
-            new { id = "1005", created_at = "2024-01-05T08:00:00Z", total_price = "10.99" },
-        });
-
-        mockShopifyClient.Setup(x => x.GetOrdersAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), options.Fields, It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new OrdersResponse { Orders = mockOrders });
-
-        var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
-
-        Assert.That(result.Success, Is.True);
-        Assert.That(result.Orders.Count, Is.EqualTo(1));
+        Assert.That(ex.Message, Does.Contain("ApiVersion is required"));
     }
 
     [Test]
     public async Task GetOrders_ErrorHandlingTest()
     {
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
+            return;
+        }
+
         options.ThrowErrorOnFailure = false;
         options.ErrorMessageOnFailure = "Custom error message";
 
-        mockShopifyClient.Setup(
-            x => x.GetOrdersAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new Exception("API error occurred"));
+        input.CreatedAtMin = "invalid-date";
 
-        var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None, mockShopifyClient.Object);
+        var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error, Is.Not.Null);
         Assert.That(result.Error.Message, Does.Contain("Custom error message"));
-        Assert.That(result.Error.AdditionalInfo.Message, Is.EqualTo("API error occurred"));
+    }
+
+    [Test]
+    public void ParseLinkHeader_WithNextPage_ReturnsCorrectPageInfo()
+    {
+        var headers = new HttpResponseMessage().Headers;
+        headers.Add("Link", "<https://test-shop.myshopify.com/admin/api/2023-10/orders.json?page_info=nextPageCursor123>; rel=\"next\"");
+
+        var result = HeaderParser.ParseLinkHeader(headers);
+
+        Assert.That(result.NextPage, Is.EqualTo("nextPageCursor123"));
+        Assert.That(result.PreviousPage, Is.Null);
+    }
+
+    [Test]
+    public void ParseLinkHeader_WithPreviousPage_ReturnsCorrectPageInfo()
+    {
+        var headers = new HttpResponseMessage().Headers;
+        headers.Add("Link", "<https://test-shop.myshopify.com/admin/api/2023-10/orders.json?page_info=prevPageCursor456>; rel=\"previous\"");
+
+        var result = HeaderParser.ParseLinkHeader(headers);
+
+        Assert.That(result.PreviousPage, Is.EqualTo("prevPageCursor456"));
+        Assert.That(result.NextPage, Is.Null);
+    }
+
+    [Test]
+    public void ParseLinkHeader_WithMultipleLinksInSingleString_ReturnsCorrectPageInfo()
+    {
+        var headers = new HttpResponseMessage().Headers;
+        headers.Add("Link", "<https://test-shop.myshopify.com/admin/api/2023-10/orders.json?page_info=nextPageCursor123>; rel=\"next\", " + "<https://test-shop.myshopify.com/admin/api/2023-10/orders.json?page_info=prevPageCursor456>; rel=\"previous\"");
+
+        var result = HeaderParser.ParseLinkHeader(headers);
+
+        Assert.That(result.NextPage, Is.EqualTo("nextPageCursor123"));
+        Assert.That(result.PreviousPage, Is.EqualTo("prevPageCursor456"));
+    }
+
+    [Test]
+    public void ParseLinkHeader_WithMultipleLinkHeaders_ReturnsCorrectPageInfo()
+    {
+        var headers = new HttpResponseMessage().Headers;
+        headers.Add("Link", "<https://test-shop.myshopify.com/admin/api/2023-10/orders.json?page_info=nextPageCursor123>; rel=\"next\"");
+        headers.Add("Link", "<https://test-shop.myshopify.com/admin/api/2023-10/orders.json?page_info=prevPageCursor456>; rel=\"previous\"");
+
+        var result = HeaderParser.ParseLinkHeader(headers);
+
+        Assert.That(result.NextPage, Is.EqualTo("nextPageCursor123"));
+        Assert.That(result.PreviousPage, Is.EqualTo("prevPageCursor456"));
+    }
+
+    [Test]
+    public void ParseLinkHeader_WithNoLinkHeader_ReturnsEmptyPageInfo()
+    {
+        var headers = new HttpResponseMessage().Headers;
+
+        var result = HeaderParser.ParseLinkHeader(headers);
+
+        Assert.That(result.NextPage, Is.Null);
+        Assert.That(result.PreviousPage, Is.Null);
     }
 
     [Test]
@@ -189,7 +246,8 @@ public class UnitTests
         var ex = new Exception("Test exception");
         const string customMessage = "Custom error";
 
-        var thrownEx = Assert.Throws<Exception>(() => ErrorHandler.Handle(ex, true, customMessage));
+        var thrownEx = Assert.Throws<Exception>(() =>
+            ErrorHandler.Handle(ex, true, customMessage));
 
         Assert.That(thrownEx.Message, Is.EqualTo($"{customMessage} {ex.Message}"));
         Assert.That(thrownEx.InnerException, Is.EqualTo(ex));
@@ -209,57 +267,5 @@ public class UnitTests
         Assert.That(result.Error, Is.Not.Null);
         Assert.That(result.Error.Message, Is.EqualTo($"{customMessage} {ex.Message}"));
         Assert.That(result.Error.AdditionalInfo, Is.EqualTo(ex));
-    }
-
-    [Test]
-    public void ShopifyApiClient_GetOrdersAsync_AfterDispose_ThrowsException()
-    {
-        var client = new ShopifyApiClient(connection);
-        client.Dispose();
-
-        Assert.ThrowsAsync<ObjectDisposedException>(() => client.GetOrdersAsync(input.CreatedAtMin, input.CreatedAtMax, input.Status, input.FulfillmentStatus, options.Fields, options.Limit, options.PageInfo, CancellationToken.None));
-    }
-
-    [Test]
-    public void ParseLinkHeader_WithNextPage_ReturnsCorrectPageInfo()
-    {
-        var linkHeader = new[]
-        {
-            "<https://test-shop.myshopify.com/admin/api/2023-10/orders.json?page_info=nextPageCursor123>; rel=\"next\"",
-        };
-
-        var result = ShopifyApiClient.ParseLinkHeader(linkHeader);
-
-        Assert.That(result.NextPage, Is.EqualTo("nextPageCursor123"));
-        Assert.That(result.PreviousPage, Is.Null);
-    }
-
-    [Test]
-    public void ParseLinkHeader_WithPreviousPage_ReturnsCorrectPageInfo()
-    {
-        var linkHeader = new[]
-        {
-            "<https://test-shop.myshopify.com/admin/api/2023-10/orders.json?page_info=prevPageCursor456>; rel=\"previous\"",
-        };
-
-        var result = ShopifyApiClient.ParseLinkHeader(linkHeader);
-
-        Assert.That(result.PreviousPage, Is.EqualTo("prevPageCursor456"));
-        Assert.That(result.NextPage, Is.Null);
-    }
-
-    [Test]
-    public void ParseLinkHeader_WithMultipleLinksInSingleString_ReturnsCorrectPageInfo()
-    {
-        var linkHeader = new[]
-        {
-            "<https://test-shop.myshopify.com/admin/api/2023-10/orders.json?page_info=nextPageCursor123>; rel=\"next\", " +
-            "<https://test-shop.myshopify.com/admin/api/2023-10/orders.json?page_info=prevPageCursor456>; rel=\"previous\"",
-        };
-
-        var result = ShopifyApiClient.ParseLinkHeader(linkHeader);
-
-        Assert.That(result.NextPage, Is.EqualTo("nextPageCursor123"));
-        Assert.That(result.PreviousPage, Is.EqualTo("prevPageCursor456"));
     }
 }
