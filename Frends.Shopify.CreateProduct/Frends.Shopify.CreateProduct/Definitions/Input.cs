@@ -16,7 +16,7 @@ public class Input
     /// new JObject
     /// {
     ///     ["title"] = "Test Product",
-    ///     ["body_html"] = "Product Description",
+    ///     ["body_html"] = "<p>Test description</p>",
     ///     ["vendor"] = "Test Vendor",
     ///     ["product_type"] = "Test Type",
     ///     ["variants"] = new JArray

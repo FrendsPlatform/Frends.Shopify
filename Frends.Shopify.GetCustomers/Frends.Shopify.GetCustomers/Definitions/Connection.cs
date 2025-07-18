@@ -1,34 +1,37 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Frends.Shopify.CreateProduct.Definitions;
+namespace Frends.Shopify.GetCustomers.Definitions;
 
 /// <summary>
-/// Connection parameters for Shopify CreateProduct task.
+/// Connection parameters for Shopify GetCustomer task.
 /// </summary>
 public class Connection
 {
     /// <summary>
-    /// The Shopify store subdomain (e.g., myshop for myshop.myshopify.com).
+    /// The subdomain of the Shopify store (e.g., myshop for myshop.myshopify.com).
     /// </summary>
     /// <example>myshop</example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
     public string ShopName { get; set; }
 
     /// <summary>
-    /// Shopify Admin API access token (private or custom app token).
+    /// Shopify Admin API access token for authenticating requests.
     /// </summary>
+    /// <example>
+    /// Private:
+    /// <code>shpat_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
+    /// OAuth:
+    /// <code>shpca_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
+    /// </example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
     [PasswordPropertyText]
     public string AccessToken { get; set; }
 
     /// <summary>
-    /// Shopify Admin API version to use.
+    /// The version of Shopify API to use
     /// </summary>
-    /// <example>2023-10</example>
+    /// <example>2025-07</example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
     public string ApiVersion { get; set; }
 }
