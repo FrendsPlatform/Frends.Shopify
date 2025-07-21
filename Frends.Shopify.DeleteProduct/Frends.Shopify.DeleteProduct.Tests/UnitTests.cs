@@ -13,7 +13,7 @@ public class UnitTests
     private readonly string shopName = "frendstemplates";
     private readonly string accessToken;
     private readonly string apiVersion = "2025-07";
-    private readonly string productId = "7343388983399";
+    private readonly string productId = "7345641160807";
     private Connection connection;
     private Input input;
     private Options options;
