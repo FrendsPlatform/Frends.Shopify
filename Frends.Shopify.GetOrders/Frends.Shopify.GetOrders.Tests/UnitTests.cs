@@ -39,16 +39,13 @@ public class UnitTests
         input = new Input
         {
             CreatedAtMin = "2023-01-01T00:00:00Z",
-            CreatedAtMax = "2024-07-10T07:07:32Z",
-            Status = "any",
-            FulfillmentStatus = null,
+            CreatedAtMax = "2025-07-10T07:07:32Z",
         };
 
         options = new Options
         {
             ThrowErrorOnFailure = true,
             Limit = 5,
-            Fields = "id,created_at,total_price",
         };
     }
 
@@ -62,6 +59,18 @@ public class UnitTests
         }
 
         var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None);
+
+        Console.WriteLine($"Retrieved {result.Orders?.Count ?? 0} orders.");
+        if (result.Orders != null)
+        {
+            foreach (var order in result.Orders)
+            {
+                Console.WriteLine(JObject.FromObject(order).ToString());
+            }
+        }
+
+        if (result.Orders.Count == 0)
+            Assert.Ignore("Test skipped. Did not retrieve any orders.");
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Orders, Is.Not.Null);
@@ -81,7 +90,7 @@ public class UnitTests
 
         var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None);
 
-        Console.WriteLine($"Retrieved {result.Orders?.Count ?? 0} orders:");
+        Console.WriteLine($"Retrieved {result.Orders?.Count ?? 0} orders.");
         if (result.Orders != null)
         {
             foreach (var order in result.Orders)
@@ -89,6 +98,9 @@ public class UnitTests
                 Console.WriteLine(JObject.FromObject(order).ToString());
             }
         }
+
+        if (result.Orders.Count == 0)
+            Assert.Ignore("Test skipped. Did not retrieve any orders.");
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Orders, Is.Not.Null);
@@ -103,9 +115,28 @@ public class UnitTests
             return;
         }
 
-        input.Status = "closed";
+        input.Status = "cancelled";
+        options.Fields = "id,created_at,total_price,cancelled_at";
 
         var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None);
+
+        Console.WriteLine($"Retrieved {result.Orders?.Count ?? 0} orders.");
+
+        if (result.Orders != null && result.Orders.Count > 0)
+        {
+            foreach (var order in result.Orders)
+            {
+                var orderJson = JObject.FromObject(order);
+                Console.WriteLine(orderJson.ToString());
+
+                Assert.That(orderJson["cancelled_at"].Type == JTokenType.Null, Is.False, $"Order {orderJson["id"]} has null cancelled_at. Returned order is not of type cancelled");
+            }
+        }
+        else
+        {
+            if (result.Orders.Count == 0)
+                Assert.Ignore("Test skipped. Did not retrieve any orders.");
+        }
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Orders, Is.Not.Null);

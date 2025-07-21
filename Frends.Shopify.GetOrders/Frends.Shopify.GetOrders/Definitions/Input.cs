@@ -27,14 +27,14 @@ public class Input
     public string CreatedAtMax { get; set; }
 
     /// <summary>
-    /// Optional. Filter orders by status. Default is any.
+    /// Optional. Filter orders by status. Default is open.
     /// </summary>
     /// <example>
-    /// <code>open, closed, cancelled, any</code>
+    /// <code>open, closed, cancelled</code>
     /// </example>
     [Display(Name = "Status")]
-    [DefaultValue("any")]
     [DisplayFormat(DataFormatString = "Text")]
+    [DefaultValue("open")]
     public string Status { get; set; }
 
     /// <summary>
