@@ -11,36 +11,14 @@ namespace Frends.Shopify.UpdateProduct.Tests;
 /// <summary>
 /// Test cases for Shopify UpdateProduct task.
 /// </summary>
-/// <example>
-/// <code>
-/// // Example test product with variants:
-/// var input = new Input
-/// {
-///     ProductId = "12345",
-///     ProductData = new JObject
-///     {
-///         ["title"] = "Updated Test Product",
-///         ["variants"] = new JArray
-///         {
-///             new JObject
-///             {
-///                 ["option1"] = "Updated Size",
-///                 ["price"] = "39.99",
-///                 ["sku"] = "UPDATED-SIZE"
-///             }
-///         }
-///     }
-/// };
-/// </code>
-/// </example>
 [TestFixture]
 public class UnitTests
 {
     private readonly string shopName = "frendstemplates";
     private readonly string accessToken;
     private readonly string apiVersion = "2025-07";
-    private readonly string productId = "7343388950631";
-    private readonly string variantProductId = "7343388983399";
+    private readonly string productId = "7343568257127";
+    private readonly string variantProductId = "7343568257127";
     private Connection connection;
     private Input input;
     private Options options;
@@ -82,12 +60,6 @@ public class UnitTests
     [Test]
     public async Task UpdateProduct_SuccessTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         var result = await Shopify.UpdateProduct(input, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.True);
@@ -96,12 +68,6 @@ public class UnitTests
     [Test]
     public async Task UpdateProduct_WithVariants_SuccessTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         var variantInput = new Input
         {
             ProductId = variantProductId,
@@ -212,12 +178,6 @@ public class UnitTests
     [Test]
     public async Task UpdateProduct_ErrorHandlingTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         options.ThrowErrorOnFailure = false;
         options.ErrorMessageOnFailure = "Custom error message";
 

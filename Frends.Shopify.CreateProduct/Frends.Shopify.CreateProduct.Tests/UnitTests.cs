@@ -12,27 +12,6 @@ namespace Frends.Shopify.CreateProduct.Tests;
 /// <summary>
 /// Test cases for Shopify CreateProduct task.
 /// </summary>
-/// <example>
-/// <code>
-/// // Example test product with variants:
-/// new JObject
-/// {
-///     ["title"] = "Test Product",
-///     ["body_html"] = "<p>Test description</p>",
-///     ["vendor"] = "Test Vendor",
-///     ["product_type"] = "Test Type",
-///     ["variants"] = new JArray
-///     {
-///         new JObject
-///         {
-///             ["option1"] = "Default",
-///             ["price"] = "9.99",
-///             ["sku"] = "PROD-001"
-///         }
-///     }
-/// }
-/// </code>
-/// </example>
 [TestFixture]
 public class UnitTests
 {
@@ -79,12 +58,6 @@ public class UnitTests
     [Test]
     public async Task CreateProduct_SuccessTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         var result = await Shopify.CreateProduct(input, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.True);
@@ -95,12 +68,6 @@ public class UnitTests
     [Test]
     public async Task CreateProduct_WithVariants_SuccessTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         input.ProductData["title"] = "Variant Test Product";
         input.ProductData["variants"] = new JArray
         {
@@ -184,12 +151,6 @@ public class UnitTests
     [Test]
     public async Task CreateProduct_ErrorHandlingTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         options.ThrowErrorOnFailure = false;
         options.ErrorMessageOnFailure = "Custom error message";
 

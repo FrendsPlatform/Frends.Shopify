@@ -48,12 +48,6 @@ public class UnitTests
     [Test]
     public async Task DeleteProduct_SuccessTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         var result = await Shopify.DeleteProduct(input, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.True);
@@ -124,12 +118,6 @@ public class UnitTests
     [Test]
     public async Task DeleteProduct_ErrorHandlingTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         options.ThrowErrorOnFailure = false;
         options.ErrorMessageOnFailure = "Custom error message";
 

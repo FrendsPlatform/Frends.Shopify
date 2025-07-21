@@ -30,6 +30,30 @@ public class Result
     /// <summary>
     /// The created product object returned by Shopify.
     /// </summary>
+    /// <example>
+    /// {
+    ///   "id": 1234567890123,
+    ///   "title": "Example Product",
+    ///   "body_html": "Example Description",
+    ///   "vendor": "Example Vendor",
+    ///   "product_type": "Example Type",
+    ///   "status": "active",
+    ///   "variants": [
+    ///     {
+    ///       "id": 987654321,
+    ///       "title": "Default Title",
+    ///       "price": "19.99",
+    ///       "sku": "EX-001"
+    ///     }
+    ///   ],
+    ///   "options": [
+    ///     {
+    ///       "name": "Title",
+    ///       "values": ["Default Title"]
+    ///     }
+    ///   ]
+    /// }
+    /// </example>
     public JObject CreatedProduct { get; private set; }
 
     /// <summary>
