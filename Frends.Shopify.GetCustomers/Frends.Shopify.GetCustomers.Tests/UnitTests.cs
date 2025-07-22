@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using dotenv.net;
 using Frends.Shopify.GetCustomers.Definitions;
 using Frends.Shopify.GetCustomers.Helpers;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace Frends.Shopify.GetCustomers.Tests;
@@ -52,28 +53,18 @@ public class UnitTests
     [Test]
     public async Task GetCustomers_SuccessTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         var result = await Shopify.GetCustomer(input, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Customer, Is.Not.Null);
         Assert.That(result.Customer["id"]?.ToString(), Is.EqualTo(customerId));
+
+        Console.WriteLine(JObject.FromObject(result.Customer).ToString());
     }
 
     [Test]
     public async Task GetCustomers_WithFields_SuccessTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         options.Fields = ["id", "email", "first_name"];
 
         var result = await Shopify.GetCustomer(input, connection, options, CancellationToken.None);
@@ -83,6 +74,8 @@ public class UnitTests
         Assert.That(result.Customer["id"]?.ToString(), Is.EqualTo(customerId));
         Assert.That(result.Customer["email"], Is.Not.Null);
         Assert.That(result.Customer["first_name"], Is.Not.Null);
+
+        Console.WriteLine(JObject.FromObject(result.Customer).ToString());
     }
 
     [Test]
@@ -150,12 +143,6 @@ public class UnitTests
     [Test]
     public async Task GetCustomers_ErrorHandlingTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         options.ThrowErrorOnFailure = false;
         options.ErrorMessageOnFailure = "Custom error message";
 
