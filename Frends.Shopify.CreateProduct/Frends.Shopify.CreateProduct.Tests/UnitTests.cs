@@ -69,7 +69,7 @@ public class UnitTests
             {
                 Console.WriteLine($"Error deleting test product: {ex.Message}");
             }
-                        finally
+            finally
             {
                 productId = null;
             }
