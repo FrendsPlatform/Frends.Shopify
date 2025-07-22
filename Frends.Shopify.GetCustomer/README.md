@@ -22,6 +22,10 @@ You can install the Task via frends UI Task View.
 
 ### Run tests
 
+The tests in this task make use of a test customer created in the Shopify "frendstemplates" shop domain.
+The Id of that customer is hardcoded into the tests. If the customer for some reason becomes unavailable the tests will fail.
+If you wish you create your own test customer, ensure that the "customerId" field in the unit tests matches that of your test customer.
+
 Run the tests
 
 `dotnet test`
