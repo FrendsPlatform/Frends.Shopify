@@ -54,8 +54,6 @@ public class UnitTests
     {
         productId = await Helpers.TestHelpers.CreateTestProduct(accessToken, shopName, apiVersion);
 
-        await Task.Delay(10000);
-
         input.ProductId = productId;
 
         var result = await Shopify.DeleteProduct(input, connection, options, CancellationToken.None);
