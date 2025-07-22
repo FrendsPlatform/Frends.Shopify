@@ -1,19 +1,23 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using dotenv.net;
 using Frends.Shopify.DeleteProduct.Definitions;
 using NUnit.Framework;
+using System;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Frends.Shopify.DeleteProduct.Tests;
 
+/// <summary>
+/// Test cases for Shopify DeleteProduct task.
+/// </summary>
 [TestFixture]
 public class UnitTests
 {
     private readonly string shopName = "frendstemplates";
     private readonly string accessToken;
     private readonly string apiVersion = "2025-07";
-    private readonly string productId = "7345641160807";
+    private string productId;
     private Connection connection;
     private Input input;
     private Options options;
@@ -48,9 +52,24 @@ public class UnitTests
     [Test]
     public async Task DeleteProduct_SuccessTest()
     {
+        productId = await Helpers.TestHelpers.CreateTestProduct(accessToken, shopName, apiVersion);
+
+        await Task.Delay(10000);
+
+        input.ProductId = productId;
+
         var result = await Shopify.DeleteProduct(input, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.True);
+
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", accessToken);
+
+        var response = await client.GetAsync(
+            $"https://{shopName}.myshopify.com/admin/api/{apiVersion}/products/{productId}.json",
+            CancellationToken.None);
+
+        Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.NotFound));
     }
 
     [Test]

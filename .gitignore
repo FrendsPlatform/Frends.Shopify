@@ -410,3 +410,5 @@ FodyWeavers.xsd
 /Frends.Shopify.GetCustomers/Frends.Shopify.GetCustomers.Tests/.env
 /Frends.Shopify.GetOrders/Frends.Shopify.GetOrders.Tests/.env
 /Frends.Shopify.GetProduct/Frends.Shopify.GetProduct.Tests/.env
+/Frends.Shopify.GetCustomers/Frends.Shopify.GetCustomers.Tests/.env
+/Frends.Shopify.GetOrders/Frends.Shopify.GetOrders.Tests/.env

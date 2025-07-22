@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using dotenv.net;
@@ -17,8 +18,7 @@ public class UnitTests
     private readonly string shopName = "frendstemplates";
     private readonly string accessToken;
     private readonly string apiVersion = "2025-07";
-    private readonly string productId = "7343568257127";
-    private readonly string variantProductId = "7343568257127";
+    private string testProductId;
     private Connection connection;
     private Input input;
     private Options options;
@@ -41,7 +41,6 @@ public class UnitTests
 
         input = new Input
         {
-            ProductId = productId,
             ProductData = new JObject
             {
                 ["title"] = $"Updated Test Product",
@@ -57,20 +56,61 @@ public class UnitTests
         };
     }
 
+    [TearDown]
+    public async Task Cleanup()
+    {
+        if (!string.IsNullOrEmpty(testProductId))
+        {
+            try
+            {
+                await Helpers.TestHelpers.DeleteTestProduct(testProductId, accessToken, shopName, apiVersion);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting test product: {ex.Message}");
+            }
+            finally
+            {
+                testProductId = null;
+            }
+        }
+    }
+
     [Test]
     public async Task UpdateProduct_SuccessTest()
     {
+        testProductId = await Helpers.TestHelpers.CreateTestProduct(accessToken, shopName, apiVersion);
+
+        input.ProductId = testProductId;
+
         var result = await Shopify.UpdateProduct(input, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.True);
+
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", accessToken);
+
+        var response = await client.GetAsync(
+            $"https://{shopName}.myshopify.com/admin/api/{apiVersion}/products/{testProductId}.json",
+            CancellationToken.None);
+
+        var responseContent = await response.Content.ReadAsStringAsync();
+        var updatedProduct = JObject.Parse(responseContent)["product"];
+
+        Assert.That(updatedProduct["title"]?.ToString(), Is.EqualTo(input.ProductData["title"]?.ToString()));
+        Assert.That(updatedProduct["body_html"]?.ToString(), Is.EqualTo(input.ProductData["body_html"]?.ToString()));
+        Assert.That(updatedProduct["vendor"]?.ToString(), Is.EqualTo(input.ProductData["vendor"]?.ToString()));
+        Assert.That(updatedProduct["product_type"]?.ToString(), Is.EqualTo(input.ProductData["product_type"]?.ToString()));
     }
 
     [Test]
     public async Task UpdateProduct_WithVariants_SuccessTest()
     {
+        testProductId = await Helpers.TestHelpers.CreateTestProduct(accessToken, shopName, apiVersion);
+
         var variantInput = new Input
         {
-            ProductId = variantProductId,
+            ProductId = testProductId,
             ProductData = new JObject
             {
                 ["title"] = "Updated Variant Test Product",
@@ -92,6 +132,27 @@ public class UnitTests
         var result = await Shopify.UpdateProduct(variantInput, connection, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.True);
+
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", accessToken);
+
+        var response = await client.GetAsync(
+            $"https://{shopName}.myshopify.com/admin/api/{apiVersion}/products/{testProductId}.json",
+            CancellationToken.None);
+
+        var responseContent = await response.Content.ReadAsStringAsync();
+        var updatedProduct = JObject.Parse(responseContent)["product"];
+        var variants = updatedProduct["variants"] as JArray;
+
+        Assert.That(updatedProduct["title"]?.ToString(), Is.EqualTo(variantInput.ProductData["title"].ToString()));
+        Assert.That(updatedProduct["body_html"]?.ToString(), Is.EqualTo(variantInput.ProductData["body_html"].ToString()));
+        Assert.That(updatedProduct["vendor"]?.ToString(), Is.EqualTo(variantInput.ProductData["vendor"].ToString()));
+        Assert.That(updatedProduct["product_type"]?.ToString(), Is.EqualTo(variantInput.ProductData["product_type"].ToString()));
+
+        Assert.That(variants, Is.Not.Null.And.Not.Empty);
+        Assert.That(variants[0]["option1"]?.ToString(), Is.EqualTo("Updated Variant Size"));
+        Assert.That(variants[0]["price"]?.ToString(), Is.EqualTo("29.99"));
+        Assert.That(variants[0]["sku"]?.ToString(), Is.EqualTo("UPDATED-VARIANT-SIZE"));
     }
 
     [Test]
@@ -161,11 +222,13 @@ public class UnitTests
     }
 
     [Test]
-    public void UpdateProduct_ProductDataValidationFailureTest()
+    public async Task UpdateProduct_ProductDataValidationFailureTest()
     {
+        testProductId = await Helpers.TestHelpers.CreateTestProduct(accessToken, shopName, apiVersion);
+
         var invalidInput = new Input
         {
-            ProductId = productId,
+            ProductId = testProductId,
             ProductData = null,
         };
 
