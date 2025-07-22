@@ -52,12 +52,6 @@ public class UnitTests
     [Test]
     public async Task GetOrders_SuccessTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None);
 
         Console.WriteLine($"Retrieved {result.Orders?.Count ?? 0} orders.");
@@ -80,12 +74,6 @@ public class UnitTests
     [Test]
     public async Task GetOrders_WithFields_SuccessTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         options.Fields = "id,created_at,total_price";
 
         var result = await Shopify.GetOrders(input, connection, options, CancellationToken.None);
@@ -109,12 +97,6 @@ public class UnitTests
     [Test]
     public async Task GetOrders_WithStatusFilter_SuccessTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         input.Status = "cancelled";
         options.Fields = "id,created_at,total_price,cancelled_at";
 
@@ -193,12 +175,6 @@ public class UnitTests
     [Test]
     public async Task GetOrders_ErrorHandlingTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         options.ThrowErrorOnFailure = false;
         options.ErrorMessageOnFailure = "Custom error message";
 

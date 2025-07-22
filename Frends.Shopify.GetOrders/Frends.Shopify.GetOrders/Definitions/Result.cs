@@ -32,6 +32,34 @@ public class Result
     /// <summary>
     /// List of order objects returned from Shopify.
     /// </summary>
+    /// <example>
+    /// [
+    ///   {
+    ///     "id": 1234567890123,
+    ///     "email": "customer@example.com",
+    ///     "created_at": "2025-01-01T12:00:00Z",
+    ///     "updated_at": "2025-01-01T12:00:00Z",
+    ///     "number": 1001,
+    ///     "status": "open",
+    ///     "total_price": "10.00",
+    ///     "currency": "EUR",
+    ///     "customer": {
+    ///       "id": 1234567890123,
+    ///       "first_name": "Example",
+    ///       "last_name": "Name"
+    ///     },
+    ///     "line_items": [
+    ///       {
+    ///         "id": 1234567890123,
+    ///         "product_id": 1234567890123,
+    ///         "name": "Example Product",
+    ///         "price": "10.00",
+    ///         "quantity": 1
+    ///       }
+    ///     ]
+    ///   }
+    /// ]
+    /// </example>
     public List<object> Orders { get; set; }
 
     /// <summary>
