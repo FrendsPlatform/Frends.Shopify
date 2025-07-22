@@ -17,7 +17,7 @@ public class UnitTests
     private readonly string shopName = "frendstemplates";
     private readonly string accessToken;
     private readonly string apiVersion = "2025-07";
-    private readonly string productId = "7343568257127";
+    private string productId;
     private Connection connection;
     private Input input;
     private Options options;
@@ -49,14 +49,32 @@ public class UnitTests
         };
     }
 
+    [TearDown]
+    public async Task Cleanup()
+    {
+        if (!string.IsNullOrEmpty(productId))
+        {
+            try
+            {
+                await Helpers.TestHelpers.DeleteTestProduct(productId, accessToken, shopName, apiVersion);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting test product: {ex.Message}");
+            }
+            finally
+            {
+                productId = null;
+            }
+        }
+    }
+
     [Test]
     public async Task GetProduct_SuccessTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
+        productId = await Helpers.TestHelpers.CreateTestProduct(accessToken, shopName, apiVersion);
+
+        input.ProductId = productId;
 
         var result = await Shopify.GetProduct(input, connection, options, CancellationToken.None);
 
@@ -68,11 +86,9 @@ public class UnitTests
     [Test]
     public async Task GetProduct_WithFields_SuccessTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
+        productId = await Helpers.TestHelpers.CreateTestProduct(accessToken, shopName, apiVersion);
+
+        input.ProductId = productId;
 
         options.Fields = ["id", "title", "vendor"];
 
@@ -151,12 +167,6 @@ public class UnitTests
     [Test]
     public async Task GetProduct_ErrorHandlingTest()
     {
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            Assert.Ignore("AccessToken not configured in environment variables. Test skipped.");
-            return;
-        }
-
         options.ThrowErrorOnFailure = false;
         options.ErrorMessageOnFailure = "Custom error message";
 

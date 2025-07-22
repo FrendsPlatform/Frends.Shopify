@@ -18,7 +18,7 @@ public class UnitTests
     private readonly string shopName = "frendstemplates";
     private readonly string accessToken;
     private readonly string apiVersion = "2025-07";
-    private string createdProductId;
+    private string productId;
     private Connection connection;
     private Input input;
     private Options options;
@@ -59,15 +59,19 @@ public class UnitTests
     [TearDown]
     public async Task Cleanup()
     {
-        if (!string.IsNullOrEmpty(createdProductId))
+        if (!string.IsNullOrEmpty(productId))
         {
             try
             {
-                await Helpers.TestHelpers.DeleteTestProduct(createdProductId, accessToken, shopName, apiVersion);
+                await Helpers.TestHelpers.DeleteTestProduct(productId, accessToken, shopName, apiVersion);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error deleting test product: {ex.Message}");
+            }
+                        finally
+            {
+                productId = null;
             }
         }
     }
@@ -76,7 +80,7 @@ public class UnitTests
     public async Task CreateProduct_SuccessTest()
     {
         var result = await Shopify.CreateProduct(input, connection, options, CancellationToken.None);
-        createdProductId = result.CreatedProduct["id"].ToString();
+        productId = result.CreatedProduct["id"].ToString();
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.CreatedProduct, Is.Not.Null);
@@ -98,7 +102,7 @@ public class UnitTests
         };
 
         var result = await Shopify.CreateProduct(input, connection, options, CancellationToken.None);
-        createdProductId = result.CreatedProduct["id"].ToString();
+        productId = result.CreatedProduct["id"].ToString();
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.CreatedProduct["variants"], Is.Not.Null);

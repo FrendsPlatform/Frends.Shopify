@@ -1,10 +1,10 @@
-using dotenv.net;
-using Frends.Shopify.DeleteProduct.Definitions;
-using NUnit.Framework;
 using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using dotenv.net;
+using Frends.Shopify.DeleteProduct.Definitions;
+using NUnit.Framework;
 
 namespace Frends.Shopify.DeleteProduct.Tests;
 

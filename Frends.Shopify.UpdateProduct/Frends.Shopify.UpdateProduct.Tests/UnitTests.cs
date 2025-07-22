@@ -18,7 +18,7 @@ public class UnitTests
     private readonly string shopName = "frendstemplates";
     private readonly string accessToken;
     private readonly string apiVersion = "2025-07";
-    private string testProductId;
+    private string productId;
     private Connection connection;
     private Input input;
     private Options options;
@@ -59,11 +59,11 @@ public class UnitTests
     [TearDown]
     public async Task Cleanup()
     {
-        if (!string.IsNullOrEmpty(testProductId))
+        if (!string.IsNullOrEmpty(productId))
         {
             try
             {
-                await Helpers.TestHelpers.DeleteTestProduct(testProductId, accessToken, shopName, apiVersion);
+                await Helpers.TestHelpers.DeleteTestProduct(productId, accessToken, shopName, apiVersion);
             }
             catch (Exception ex)
             {
@@ -71,7 +71,7 @@ public class UnitTests
             }
             finally
             {
-                testProductId = null;
+                productId = null;
             }
         }
     }
@@ -79,9 +79,9 @@ public class UnitTests
     [Test]
     public async Task UpdateProduct_SuccessTest()
     {
-        testProductId = await Helpers.TestHelpers.CreateTestProduct(accessToken, shopName, apiVersion);
+        productId = await Helpers.TestHelpers.CreateTestProduct(accessToken, shopName, apiVersion);
 
-        input.ProductId = testProductId;
+        input.ProductId = productId;
 
         var result = await Shopify.UpdateProduct(input, connection, options, CancellationToken.None);
 
@@ -91,7 +91,7 @@ public class UnitTests
         client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", accessToken);
 
         var response = await client.GetAsync(
-            $"https://{shopName}.myshopify.com/admin/api/{apiVersion}/products/{testProductId}.json",
+            $"https://{shopName}.myshopify.com/admin/api/{apiVersion}/products/{productId}.json",
             CancellationToken.None);
 
         var responseContent = await response.Content.ReadAsStringAsync();
@@ -106,11 +106,11 @@ public class UnitTests
     [Test]
     public async Task UpdateProduct_WithVariants_SuccessTest()
     {
-        testProductId = await Helpers.TestHelpers.CreateTestProduct(accessToken, shopName, apiVersion);
+        productId = await Helpers.TestHelpers.CreateTestProduct(accessToken, shopName, apiVersion);
 
         var variantInput = new Input
         {
-            ProductId = testProductId,
+            ProductId = productId,
             ProductData = new JObject
             {
                 ["title"] = "Updated Variant Test Product",
@@ -137,7 +137,7 @@ public class UnitTests
         client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", accessToken);
 
         var response = await client.GetAsync(
-            $"https://{shopName}.myshopify.com/admin/api/{apiVersion}/products/{testProductId}.json",
+            $"https://{shopName}.myshopify.com/admin/api/{apiVersion}/products/{productId}.json",
             CancellationToken.None);
 
         var responseContent = await response.Content.ReadAsStringAsync();
@@ -222,13 +222,11 @@ public class UnitTests
     }
 
     [Test]
-    public async Task UpdateProduct_ProductDataValidationFailureTest()
+    public void UpdateProduct_ProductDataValidationFailureTest()
     {
-        testProductId = await Helpers.TestHelpers.CreateTestProduct(accessToken, shopName, apiVersion);
-
         var invalidInput = new Input
         {
-            ProductId = testProductId,
+            ProductId = "1234567890123",
             ProductData = null,
         };
 
