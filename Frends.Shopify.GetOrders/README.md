@@ -22,6 +22,11 @@ You can install the Task via frends UI Task View.
 
 ### Run tests
 
+The tests in this task make use of orders prebuilt in the Shopify "frendstemplates" shop domain.
+If the tests are skipped and return "Test skipped. Did not retrieve any orders." it can be that the orders these tests are built around are not available
+or that the tests are failing (given the task has been developed past version 1.0.0). If that is the case, it is important to ensure there are orders available in the Shopify store,
+and if not create orders that the tests can use. 
+
 Run the tests
 
 `dotnet test`
