@@ -4,22 +4,14 @@ using System.ComponentModel.DataAnnotations;
 namespace Frends.Shopify.GetCustomer.Definitions;
 
 /// <summary>
-/// Essential parameters.
+/// Input parameters for Shopify GetCustomer task.
 /// </summary>
 public class Input
 {
     /// <summary>
-    /// The input string to be repeated and output.
+    /// The ID of the customer to retrieve.
     /// </summary>
-    /// <example>foobar</example>
-    [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("Lorem ipsum dolor sit amet.")]
-    public string Content { get; set; }
-
-    /// <summary>
-    /// Number of times to repeat the input string.
-    /// </summary>
-    /// <example>2</example>
-    [DefaultValue(3)]
-    public int Repeat { get; set; }
+    /// <example>1234567890123</example>
+    [Display(Name = "Customer Id")]
+    public string CustomerId { get; set; }
 }
