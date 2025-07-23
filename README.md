@@ -9,6 +9,7 @@ Frends tasks for Shopify operations.
 - [Frends.Shopify.DeleteProduct](Frends.Shopify.DeleteProduct/README.md)
 - [Frends.Shopify.GetProduct](Frends.Shopify.GetProduct/README.md)
 - [Frends.Shopify.GetOrders](Frends.Shopify.GetOrders/README.md)
+- [Frends.Shopify.GetCustomer](Frends.Shopify.GetCustomer/README.md)
 
 # Contributing
 When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change.

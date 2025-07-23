@@ -41,7 +41,7 @@ public static class Shopify
                 throw new Exception("ApiVersion is required");
 
             var url = $"https://{connection.ShopDomain}/admin/api/{connection.ApiVersion}/orders.json";
-            var queryParams = new System.Collections.Generic.List<string>();
+            var queryParams = new List<string>();
 
             if (!string.IsNullOrEmpty(input.CreatedAtMin))
                 queryParams.Add($"created_at_min={Uri.EscapeDataString(input.CreatedAtMin)}");

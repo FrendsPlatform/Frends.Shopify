@@ -405,8 +405,8 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /Frends.Shopify.CreateProduct/Frends.Shopify.CreateProduct.Tests/.env
-/Frends.Shopify.DeleteProduct/Frends.Shopify.DeleteProduct.Tests/.env
-/Frends.Shopify.GetCustomers/Frends.Shopify.GetCustomers.Tests/.env
-/Frends.Shopify.GetProduct/Frends.Shopify.GetProduct.Tests/.env
 /Frends.Shopify.UpdateProduct/Frends.Shopify.UpdateProduct.Tests/.env
+/Frends.Shopify.DeleteProduct/Frends.Shopify.DeleteProduct.Tests/.env
 /Frends.Shopify.GetOrders/Frends.Shopify.GetOrders.Tests/.env
+/Frends.Shopify.GetProduct/Frends.Shopify.GetProduct.Tests/.env
+/Frends.Shopify.GetCustomer/Frends.Shopify.GetCustomer.Tests/.env
