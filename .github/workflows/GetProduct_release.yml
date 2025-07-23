@@ -1,0 +1,15 @@
+name: GetProduct_release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: FrendsPlatform/FrendsTasks/.github/workflows/release.yml@main
+    with:
+      workdir: Frends.Shopify.GetProduct
+      dotnet_version: 8.0.x
+      env_var_name_1: FRENDS_ShopifyTest_accessToken
+    secrets:
+      badge_service_api_key: ${{ secrets.BADGE_SERVICE_API_KEY }}
+      env_var_value_1: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
