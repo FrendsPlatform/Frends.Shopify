@@ -12,7 +12,7 @@ public class Options
     /// Optional. List of specific fields to include in the response.
     /// </summary>
     /// <example>
-    /// <code>id,email,first_name</code>
+    /// <code>"id,email,first_name"</code>
     /// </example>
     public string[] Fields { get; set; }
 
