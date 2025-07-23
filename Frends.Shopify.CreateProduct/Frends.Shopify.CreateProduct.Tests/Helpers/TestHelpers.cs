@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Frends.Shopify.CreateProduct.Helpers
+namespace Frends.Shopify.CreateProduct.Tests.Helpers
 {
     /// <summary>
     /// Helper methods for tests. Deletes a product after tests have run.

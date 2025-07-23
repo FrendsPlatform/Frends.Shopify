@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace Frends.Shopify.GetProduct.Helpers
+namespace Frends.Shopify.GetProduct.Tests.Helpers
 {
     /// <summary>
     /// Helpers methods for testing. Creates and Deletes a product.

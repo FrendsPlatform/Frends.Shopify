@@ -80,10 +80,12 @@ public class UnitTests
     public async Task CreateProduct_SuccessTest()
     {
         var result = await Shopify.CreateProduct(input, connection, options, CancellationToken.None);
-        productId = result.CreatedProduct["id"].ToString();
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.CreatedProduct, Is.Not.Null);
+
+        productId = result.CreatedProduct["id"].ToString();
+
         Assert.That(result.CreatedProduct["title"]?.ToString(), Is.EqualTo("Test Product"));
     }
 
@@ -102,6 +104,10 @@ public class UnitTests
         };
 
         var result = await Shopify.CreateProduct(input, connection, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.CreatedProduct, Is.Not.Null);
+
         productId = result.CreatedProduct["id"].ToString();
 
         Assert.That(result.Success, Is.True);
