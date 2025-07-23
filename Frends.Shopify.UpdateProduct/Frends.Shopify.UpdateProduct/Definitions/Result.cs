@@ -6,6 +6,18 @@
 public class Result
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="Result"/> class.
+    /// Result of updating a Shopify product.
+    /// </summary>
+    /// <param name="success">True if the operation succeeded.</param>
+    /// <param name="error">Error details if the operation failed.</param>
+    internal Result(bool success, Error error = null)
+    {
+        Success = success;
+        Error = error;
+    }
+
+    /// <summary>
     /// Indicates if the task completed successfully.
     /// </summary>
     /// <example>true</example>
@@ -16,10 +28,4 @@ public class Result
     /// </summary>
     /// <example>object { string Message, object { Exception Exception } AdditionalInfo }</example>
     public Error Error { get; private set; }
-
-    internal Result(bool success, Error error = null)
-    {
-        Success = success;
-        Error = error;
-    }
 }

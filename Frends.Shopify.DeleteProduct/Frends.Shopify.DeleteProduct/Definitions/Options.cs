@@ -18,8 +18,7 @@ public class Options
     /// <summary>
     /// Overrides the error message on failure.
     /// </summary>
-    /// <example>Failed to update product.</example>
+    /// <example>Failed to delete product.</example>
     [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("")]
     public string ErrorMessageOnFailure { get; set; }
 }
