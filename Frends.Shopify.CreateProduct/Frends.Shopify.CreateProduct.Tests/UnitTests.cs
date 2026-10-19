@@ -153,7 +153,7 @@ public class UnitTests
         var invalidConnection = new Connection
         {
             ShopName = shopName,
-            AccessToken = accessToken,
+            AccessToken = "test-token",
             ApiVersion = null,
         };
 
@@ -171,8 +171,15 @@ public class UnitTests
             ProductData = null,
         };
 
+        var validConnection = new Connection
+        {
+            ShopName = shopName,
+            AccessToken = "test-token",
+            ApiVersion = apiVersion,
+        };
+
         var ex = Assert.ThrowsAsync<Exception>(() =>
-            Shopify.CreateProduct(invalidInput, connection, options, CancellationToken.None));
+            Shopify.CreateProduct(invalidInput, validConnection, options, CancellationToken.None));
 
         Assert.That(ex.Message, Does.Contain("ProductData is required"));
     }
