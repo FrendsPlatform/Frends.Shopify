@@ -17,13 +17,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="dotenv.net" Version="4.0.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+        <PackageReference Include="dotenv.net" Version="4.0.0"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -36,7 +36,7 @@
         <None Include="FrendsTaskMetadata.json" Pack="true" PackagePath="/">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-		<None Include="..\CHANGELOG.md" Pack="true" PackagePath="/" />
-	</ItemGroup>
+        <None Include="..\CHANGELOG.md" Pack="true" PackagePath="/"/>
+    </ItemGroup>
 
 </Project>
