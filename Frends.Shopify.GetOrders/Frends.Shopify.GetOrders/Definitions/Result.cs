@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Frends.Shopify.GetOrders.Definitions;
 
@@ -24,15 +24,16 @@ public class Result
     }
 
     /// <summary>
-    /// Indicates whether the retrieval was successful.
+    /// Gets or sets a value indicating whether the retrieval was successful.
     /// </summary>
-    /// <example>true</example>
+    /// <example><code>true</code></example>
     public bool Success { get; set; }
 
     /// <summary>
-    /// List of order objects returned from Shopify.
+    /// Gets or sets the list of order objects returned from Shopify.
     /// </summary>
     /// <example>
+    /// <code>
     /// [
     ///   {
     ///     "id": 1234567890123,
@@ -59,34 +60,23 @@ public class Result
     ///     ]
     ///   }
     /// ]
+    /// </code>
     /// </example>
     public List<object> Orders { get; set; }
 
     /// <summary>
-    /// Pagination cursor.
+    /// Gets or sets the pagination cursors.
     /// </summary>
-    /// <example>object { string NextPage, string PreviousPage }</example>
+    /// <example><code>PageInfo { NextPage = "next-page-cursor", PreviousPage = "previous-page-cursor" }</code></example>
     public PageInfo PageInfo { get; set; }
 
     /// <summary>
-    /// Error that occurred during task execution.
+    /// Gets or sets the error that occurred during task execution.
     /// </summary>
-    /// <example>object { string Message, object { Exception Exception } AdditionalInfo }</example>
+    /// <example>
+    /// <code>
+    /// Error { Message = "Shopify API request failed", AdditionalInfo = new Exception("Invalid access token") }
+    /// </code>
+    /// </example>
     public Error Error { get; set; }
-}
-
-/// <summary>
-/// Pagination cursor.
-/// </summary>
-public class PageInfo
-{
-    /// <summary>
-    /// Pagination cursor for nextPage.
-    /// </summary>
-    public string NextPage { get; set; }
-
-    /// <summary>
-    /// Pagination cursor for previousPage.
-    /// </summary>
-    public string PreviousPage { get; set; }
 }

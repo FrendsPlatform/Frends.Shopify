@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net.Http;
@@ -15,14 +15,14 @@ namespace Frends.Shopify.GetOrders;
 public static class Shopify
 {
     /// <summary>
-    /// Retrieves orders from Shopify
-    /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends-Shopify-GetOrders)
+    /// Retrieves orders from Shopify.
+    /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends-Shopify-GetOrders).
     /// </summary>
     /// <param name="input">Input parameters.</param>
     /// <param name="connection">Connection parameters.</param>
     /// <param name="options">Additional parameters.</param>
     /// <param name="cancellationToken">A cancellation token provided by Frends Platform.</param>
-    /// <returns>Object { bool Success, List Orders, PageInfo PageInfo, Error Error { string Message, Exception AdditionalInfo } }</returns>
+    /// <returns>Object { bool Success, List Orders, PageInfo PageInfo, Error Error { string Message, Exception AdditionalInfo } }.</returns>
     public static async Task<Result> GetOrders(
         [PropertyTab] Input input,
         [PropertyTab] Connection connection,
