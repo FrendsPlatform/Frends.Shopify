@@ -8,14 +8,14 @@ namespace Frends.Shopify.GetOrders.Definitions;
 public class Error
 {
     /// <summary>
-    /// Summary of the error.
+    /// Gets or sets a summary of the error.
     /// </summary>
-    /// <example>Unable to join strings.</example>
+    /// <example><code>Shopify API error: 401 - Invalid access token.</code></example>
     public string Message { get; set; }
 
     /// <summary>
-    /// Additional information about the error.
+    /// Gets or sets additional information about the error.
     /// </summary>
-    /// <example>object { Exception Exception }</example>
+    /// <example><code>new Exception("Invalid access token")</code></example>
     public Exception AdditionalInfo { get; set; }
 }

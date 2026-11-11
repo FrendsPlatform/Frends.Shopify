@@ -10,6 +10,9 @@ using NUnit.Framework;
 
 namespace Frends.Shopify.GetOrders.Tests;
 
+/// <summary>
+/// Tests the order-retrieval task and its pagination helper.
+/// </summary>
 [TestFixture]
 public class UnitTests
 {
@@ -20,12 +23,18 @@ public class UnitTests
     private Input input;
     private Options options;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UnitTests"/> class.
+    /// </summary>
     public UnitTests()
     {
         DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
         accessToken = Environment.GetEnvironmentVariable("FRENDS_ShopifyTest_accessToken");
     }
 
+    /// <summary>
+    /// Creates the task inputs used by each test.
+    /// </summary>
     [SetUp]
     public void Setup()
     {
@@ -49,6 +58,10 @@ public class UnitTests
         };
     }
 
+    /// <summary>
+    /// Verifies order retrieval succeeds.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test.</returns>
     [Test]
     public async Task GetOrders_SuccessTest()
     {
@@ -71,6 +84,10 @@ public class UnitTests
         Assert.That(result.Orders.Count, Is.LessThanOrEqualTo(options.Limit));
     }
 
+    /// <summary>
+    /// Verifies order retrieval succeeds when fields are specified.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test.</returns>
     [Test]
     public async Task GetOrders_WithFields_SuccessTest()
     {
@@ -94,6 +111,10 @@ public class UnitTests
         Assert.That(result.Orders, Is.Not.Null);
     }
 
+    /// <summary>
+    /// Verifies order retrieval filters by status.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test.</returns>
     [Test]
     public async Task GetOrders_WithStatusFilter_SuccessTest()
     {
@@ -124,6 +145,9 @@ public class UnitTests
         Assert.That(result.Orders, Is.Not.Null);
     }
 
+    /// <summary>
+    /// Verifies a missing store domain causes an error.
+    /// </summary>
     [Test]
     public void GetOrders_ShopDomainValidationFailureTest()
     {
@@ -140,6 +164,9 @@ public class UnitTests
         Assert.That(ex.Message, Does.Contain("ShopDomain is required"));
     }
 
+    /// <summary>
+    /// Verifies a missing access token causes an error.
+    /// </summary>
     [Test]
     public void GetOrders_AccessTokenValidationFailureTest()
     {
@@ -156,6 +183,9 @@ public class UnitTests
         Assert.That(ex.Message, Does.Contain("AccessToken is required"));
     }
 
+    /// <summary>
+    /// Verifies a missing API version causes an error.
+    /// </summary>
     [Test]
     public void GetOrders_ApiVersionValidationFailureTest()
     {
@@ -172,6 +202,10 @@ public class UnitTests
         Assert.That(ex.Message, Does.Contain("ApiVersion is required"));
     }
 
+    /// <summary>
+    /// Verifies errors can be returned as a task result.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test.</returns>
     [Test]
     public async Task GetOrders_ErrorHandlingTest()
     {
@@ -187,6 +221,9 @@ public class UnitTests
         Assert.That(result.Error.Message, Does.Contain("Custom error message"));
     }
 
+    /// <summary>
+    /// Verifies the next-page cursor is parsed from the Link header.
+    /// </summary>
     [Test]
     public void ParseLinkHeader_WithNextPage_ReturnsCorrectPageInfo()
     {
@@ -199,6 +236,9 @@ public class UnitTests
         Assert.That(result.PreviousPage, Is.Null);
     }
 
+    /// <summary>
+    /// Verifies the previous-page cursor is parsed from the Link header.
+    /// </summary>
     [Test]
     public void ParseLinkHeader_WithPreviousPage_ReturnsCorrectPageInfo()
     {
@@ -211,6 +251,9 @@ public class UnitTests
         Assert.That(result.NextPage, Is.Null);
     }
 
+    /// <summary>
+    /// Verifies multiple cursors are parsed from one Link header.
+    /// </summary>
     [Test]
     public void ParseLinkHeader_WithMultipleLinksInSingleString_ReturnsCorrectPageInfo()
     {
@@ -223,6 +266,9 @@ public class UnitTests
         Assert.That(result.PreviousPage, Is.EqualTo("prevPageCursor456"));
     }
 
+    /// <summary>
+    /// Verifies multiple Link headers are parsed.
+    /// </summary>
     [Test]
     public void ParseLinkHeader_WithMultipleLinkHeaders_ReturnsCorrectPageInfo()
     {
@@ -236,6 +282,9 @@ public class UnitTests
         Assert.That(result.PreviousPage, Is.EqualTo("prevPageCursor456"));
     }
 
+    /// <summary>
+    /// Verifies an empty page info is returned when no Link header is present.
+    /// </summary>
     [Test]
     public void ParseLinkHeader_WithNoLinkHeader_ReturnsEmptyPageInfo()
     {
@@ -247,6 +296,9 @@ public class UnitTests
         Assert.That(result.PreviousPage, Is.Null);
     }
 
+    /// <summary>
+    /// Verifies the error handler throws when configured to throw errors.
+    /// </summary>
     [Test]
     public void Handle_WhenThrowErrorIsTrue_ThrowsException()
     {
@@ -260,6 +312,9 @@ public class UnitTests
         Assert.That(thrownEx.InnerException, Is.EqualTo(ex));
     }
 
+    /// <summary>
+    /// Verifies the error handler returns an error result when configured not to throw.
+    /// </summary>
     [Test]
     public void Handle_WhenThrowErrorIsFalse_ReturnsErrorResult()
     {
