@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Frends.Shopify.GetOrders.Definitions;
 
@@ -24,16 +24,15 @@ public class Result
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the retrieval was successful.
+    /// Indicates whether the retrieval was successful.
     /// </summary>
-    /// <example><code>true</code></example>
+    /// <example>true</example>
     public bool Success { get; set; }
 
     /// <summary>
-    /// Gets or sets the list of order objects returned from Shopify.
+    /// List of order objects returned from Shopify.
     /// </summary>
     /// <example>
-    /// <code>
     /// [
     ///   {
     ///     "id": 1234567890123,
@@ -60,23 +59,34 @@ public class Result
     ///     ]
     ///   }
     /// ]
-    /// </code>
     /// </example>
     public List<object> Orders { get; set; }
 
     /// <summary>
-    /// Gets or sets the pagination cursors.
+    /// Pagination cursor.
     /// </summary>
-    /// <example>
-    /// <code>
-    /// PageInfo { NextPage = "eyJsYXN0X2lkIjo0MDkzNTg3ODQsImxhc3RfdmFsdWUiOiI0MDkzNTg3ODQifQ==" }
-    /// </code>
-    /// </example>
+    /// <example>object { string NextPage, string PreviousPage }</example>
     public PageInfo PageInfo { get; set; }
 
     /// <summary>
-    /// Gets or sets the error that occurred during task execution.
+    /// Error that occurred during task execution.
     /// </summary>
-    /// <example><code>Error { Message = "Shopify API request failed", AdditionalInfo = new Exception("Invalid access token") }</code></example>
+    /// <example>object { string Message, object { Exception Exception } AdditionalInfo }</example>
     public Error Error { get; set; }
+}
+
+/// <summary>
+/// Pagination cursor.
+/// </summary>
+public class PageInfo
+{
+    /// <summary>
+    /// Pagination cursor for nextPage.
+    /// </summary>
+    public string NextPage { get; set; }
+
+    /// <summary>
+    /// Pagination cursor for previousPage.
+    /// </summary>
+    public string PreviousPage { get; set; }
 }

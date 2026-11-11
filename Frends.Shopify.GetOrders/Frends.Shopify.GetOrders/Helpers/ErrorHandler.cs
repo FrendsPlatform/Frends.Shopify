@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using Frends.Shopify.GetOrders.Definitions;
 
 namespace Frends.Shopify.GetOrders.Helpers
 {
     /// <summary>
-    /// Handles errors that occur while retrieving Shopify orders.
+    /// Error handling
     /// </summary>
     public static class ErrorHandler
     {
@@ -15,7 +15,7 @@ namespace Frends.Shopify.GetOrders.Helpers
         /// <param name="throwError">If true, throws the exception. If false, returns a failure result with error details.</param>
         /// <param name="customMessage">Additional custom message included in the error.</param>
         /// <returns>
-        /// Object { bool Success, List orders, PageInfo pageInfo { string NextPage, string PreviousPage }, Error Error { string Message, Exception AdditionalInfo } }.
+        /// Object { bool Success, List orders, PageInfo pageInfo { string NextPage, string PreviousPage }, Error Error { string Message, Exception AdditionalInfo } }
         /// </returns>
         public static Result Handle(Exception ex, bool throwError, string customMessage)
         {
