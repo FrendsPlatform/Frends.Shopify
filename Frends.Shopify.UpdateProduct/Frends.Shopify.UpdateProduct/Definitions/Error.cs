@@ -10,6 +10,7 @@ public class Error
     /// <summary>
     /// Summary of the error.
     /// </summary>
+    /// <example>Product update failed: product not found</example>
     public string Message { get; set; }
 
     /// <summary>
