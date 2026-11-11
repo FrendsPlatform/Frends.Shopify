@@ -1,19 +1,19 @@
-﻿using System;
+using System;
 using System.Net.Http.Headers;
 using Frends.Shopify.GetOrders.Definitions;
 
 namespace Frends.Shopify.GetOrders.Helpers
 {
     /// <summary>
-    /// HTTP header parsing
+    /// Parses HTTP headers returned by Shopify.
     /// </summary>
     public static class HeaderParser
     {
         /// <summary>
         /// Parses Shopify's Link header to extract pagination cursors.
         /// </summary>
-        /// <param name="headers">HTTP response headers</param>
-        /// <returns>PageInfo containing NextPage and PreviousPage cursors</returns>
+        /// <param name="headers">HTTP response headers.</param>
+        /// <returns>PageInfo containing next-page and previous-page cursors.</returns>
         public static PageInfo ParseLinkHeader(HttpResponseHeaders headers)
         {
             var pageInfo = new PageInfo();
@@ -47,7 +47,7 @@ namespace Frends.Shopify.GetOrders.Helpers
         }
 
         /// <summary>
-        /// Extracts the page_info cursor value from a link header item
+        /// Extracts the page_info cursor value from a link header item.
         /// </summary>
         private static string ExtractPageInfoCursor(string linkItem)
         {

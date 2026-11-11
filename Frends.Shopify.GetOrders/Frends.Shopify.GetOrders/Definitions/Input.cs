@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Frends.Shopify.GetOrders.Definitions;
@@ -9,7 +9,7 @@ namespace Frends.Shopify.GetOrders.Definitions;
 public class Input
 {
     /// <summary>
-    /// Optional. Start date/time in ISO 8601 format.
+    /// Gets or sets an optional start date/time in ISO 8601 format.
     /// </summary>
     /// <example>
     /// <code>"2025-01-01T00:00:00Z"</code>
@@ -18,7 +18,7 @@ public class Input
     public string CreatedAtMin { get; set; }
 
     /// <summary>
-    /// Optional. End date/time in ISO 8601 format.
+    /// Gets or sets an optional end date/time in ISO 8601 format.
     /// </summary>
     /// <example>
     /// <code>"2025-12-31T23:59:59Z"</code>
@@ -27,7 +27,7 @@ public class Input
     public string CreatedAtMax { get; set; }
 
     /// <summary>
-    /// Optional. Filter orders by status. Default is open.
+    /// Gets or sets an optional order status filter. The default is open.
     /// </summary>
     /// <example>
     /// <code>open, closed, cancelled</code>
@@ -38,7 +38,7 @@ public class Input
     public string Status { get; set; }
 
     /// <summary>
-    /// Optional. Filter by fulfillment status.
+    /// Gets or sets an optional fulfillment status filter.
     /// </summary>
     /// <example>
     /// <code>shipped, partial, unshipped</code>

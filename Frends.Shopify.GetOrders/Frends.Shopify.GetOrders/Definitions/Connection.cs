@@ -9,29 +9,29 @@ namespace Frends.Shopify.GetOrders.Definitions;
 public class Connection
 {
     /// <summary>
-    /// Your Shopify store domain.
+    /// Gets or sets the Shopify store domain.
     /// </summary>
-    /// <example>your-store.myshopify.com</example>
+    /// <example><code>your-store.myshopify.com</code></example>
     [DisplayFormat(DataFormatString = "Text")]
     public string ShopDomain { get; set; }
 
     /// <summary>
-    /// Shopify Admin API access token for authenticating requests (from private app or OAuth).
+    /// Gets or sets the Shopify Admin API access token for authenticating requests (from a private app or OAuth).
     /// </summary>
     /// <example>
     /// Private:
-    /// <code>shpat_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
+    /// <code>example-private-app-token-from-shopify-admin</code>
     /// OAuth:
-    /// <code>shpca_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
+    /// <code>example-oauth-access-token-from-shopify</code>
     /// </example>
     [DisplayFormat(DataFormatString = "Text")]
     [PasswordPropertyText]
     public string AccessToken { get; set; }
 
     /// <summary>
-    /// The version of Shopify API to use
+    /// Gets or sets the Shopify API version to use.
     /// </summary>
-    /// <example>2025-07</example>
+    /// <example><code>2025-07</code></example>
     [DisplayFormat(DataFormatString = "Text")]
     public string ApiVersion { get; set; }
 }
