@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Frends.Shopify.UpdateProduct.Definitions;
 
 namespace Frends.Shopify.UpdateProduct.Helpers

@@ -1,4 +1,4 @@
-﻿namespace Frends.Shopify.UpdateProduct.Definitions;
+namespace Frends.Shopify.UpdateProduct.Definitions;
 
 /// <summary>
 /// Result of the task.
