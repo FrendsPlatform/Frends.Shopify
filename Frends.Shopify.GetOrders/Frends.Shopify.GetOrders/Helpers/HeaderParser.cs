@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http.Headers;
 using Frends.Shopify.GetOrders.Definitions;
 

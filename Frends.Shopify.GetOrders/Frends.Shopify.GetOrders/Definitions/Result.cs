@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Frends.Shopify.GetOrders.Definitions;
 
@@ -73,20 +73,4 @@ public class Result
     /// </summary>
     /// <example>object { string Message, object { Exception Exception } AdditionalInfo }</example>
     public Error Error { get; set; }
-}
-
-/// <summary>
-/// Pagination cursor.
-/// </summary>
-public class PageInfo
-{
-    /// <summary>
-    /// Pagination cursor for nextPage.
-    /// </summary>
-    public string NextPage { get; set; }
-
-    /// <summary>
-    /// Pagination cursor for previousPage.
-    /// </summary>
-    public string PreviousPage { get; set; }
 }
